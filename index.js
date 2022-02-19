@@ -94,7 +94,11 @@ client.on('interactionCreate', async interaction => {
             });
             interaction.reply({content: `Your color is now: ${interaction.options.getString("color")}`, ephemeral: true});
         }else {
-            interaction.reply({content: `${interaction.options.getString("color")} is not a valid Hex Color. Use this if you need help: https://rgbacolorpicker.com/hex-color-picker`, ephemeral: true});
+            interaction.reply({
+                content: `${interaction.options.getString("color")} is not a valid Hex Color. 
+                    Use this if you need help: https://rgbacolorpicker.com/hex-color-picker`,
+                ephemeral: true
+            });
         }
 
     }
