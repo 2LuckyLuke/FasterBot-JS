@@ -1,6 +1,7 @@
 const Discord = require("discord.js");
 const {Intents, Permissions} = require("discord.js");
 const {token} = require('./config.json');
+const {customColors} = require("./colors.json");
 
 
 const client = new Discord.Client({
@@ -33,10 +34,10 @@ client.on('interactionCreate', async interaction => {
         if (role !== null) {
             textToSend += ` ${role}`;
 	    allowedRole = role.id;
-	
+
 	    message = await interaction.reply({
 		allowedMentions: {roles: [role.id]},
-		content: textToSend, 
+		content: textToSend,
 		fetchReply: true
 	    });
 
@@ -67,7 +68,40 @@ client.on('interactionCreate', async interaction => {
         interaction.channel.send(response)
     }
 
+    //setgame command
+    if (interaction.commandName === "setgame") {
+
+        let usersRole = getOrCreateRole(interaction);
+
+        interaction.reply({content: "you can now see that channel", ephemeral: true});
+    }
+
+    //setcolor command
+    if (interaction.commandName === "setcolor") {
+
+        let usersRole = getOrCreateRole(interaction);
+
+        interaction.reply({content: `Your color is now: ${interaction.options.getString("color")}`, ephemeral: true});
+    }
+
+    //setcustomcolor command
+    if (interaction.commandName === "setcustomcolor") {
+        let regex = /#(?:[a-f\d]{3}){1,2}\b/i;
+        if(regex.test(interaction.options.getString("color"))){
+            let usersRole = getOrCreateRole(interaction);
+            usersRole.edit({
+                color: interaction.options.getString("color")
+            });
+            interaction.reply({content: `Your color is now: ${interaction.options.getString("color")}`, ephemeral: true});
+        }else {
+            interaction.reply({content: `${interaction.options.getString("color")} is not a valid Hex Color. Use this if you need help: https://rgbacolorpicker.com/hex-color-picker`, ephemeral: true});
+        }
+
+    }
+
+
 });
+
 
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
@@ -90,6 +124,21 @@ client.on("messageCreate", async msg => {
 });
 
 client.login(token);
+
+function getOrCreateRole(interaction){
+
+    //if the user has no own role: create it
+    if (!(interaction.member.roles).cache.some(r => r.name === interaction.user.username)) {
+        interaction.guild.roles.create({
+            name: interaction.user.username,
+            color: customColors.user,
+        }).then((role) => {
+            interaction.member.roles.add(role);
+        });
+    }
+
+    return interaction.member.roles.cache.find(role => role.name === interaction.user.username);
+}
 
 function getEmojisFromString(textInput) {
     let inputs = textInput.split("");
