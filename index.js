@@ -1,6 +1,6 @@
 const Discord = require("discord.js");
 const {Intents, Permissions} = require("discord.js");
-
+const {token} = require('./config.json');
 const {customColors} = require("./colors.json");
 
 
@@ -30,16 +30,24 @@ client.on('interactionCreate', async interaction => {
         //console.log(interaction);
         let textToSend = interaction.options.getString("text");
         let role = interaction.options.getRole("role");
+	let message;
         if (role !== null) {
             textToSend += ` ${role}`;
-        }
-        let reactions = interaction.options.getString("reactions");
-        const message = await interaction.reply({
-            allowedMentions: {roles: [role.id]},
-            content: textToSend,
-            fetchReply: true
-        });
+	    allowedRole = role.id;
 
+	    message = await interaction.reply({
+		allowedMentions: {roles: [role.id]},
+		content: textToSend,
+		fetchReply: true
+	    });
+
+        } else{
+	    message = await interaction.reply({
+		    content: textToSend,
+		    fetchReply: true
+	    });
+	}
+        let reactions = interaction.options.getString("reactions");
         if (reactions !== null) {
             let emojis = getEmojisFromString(reactions)
             for (let i = 0; i < emojis.length; i++) {
@@ -53,11 +61,11 @@ client.on('interactionCreate', async interaction => {
 
     //fragfinn command
     if (interaction.commandName === "fragfinn") {
-        interaction.reply({content: "Our search engine has been informed.", ephemeral: true});
+        interaction.reply({content: "Our search engine has been informed.", ephemeral: true})
 
         let response = interaction.options.getString("question");
         response = "<@561491781733187584> " + response;
-        interaction.channel.send(response);
+        interaction.channel.send(response)
     }
 
     //setgame command
@@ -99,7 +107,7 @@ client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
 
     //message starts with '.' (NotSoBot)
-    if (msg.content[0] === ".") {
+    if (msg.content[0] === "."){
         msg.delete();
     }
 
@@ -115,8 +123,7 @@ client.on("messageCreate", async msg => {
     }
 });
 
-
-client.login(process.env.TOKEN);
+client.login(token);
 
 function getOrCreateRole(interaction){
 
@@ -159,7 +166,7 @@ client.on("voiceStateUpdate", (oldState, newState) => {
         voiceLeave(oldState);
     } else if (oldState.channelId === null) { // joined
         voiceJoin(newState);
-    } else { // moved
+    } else if (newState.channelId === null && oldState.channelId === null){ // moved
         voiceLeave(oldState);
         voiceJoin(newState);
     }
