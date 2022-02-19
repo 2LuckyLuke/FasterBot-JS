@@ -70,7 +70,7 @@ const commands = [
                 .addChoice("Overwatch", "ow")
                 .addChoice("League of Legends", "lol")
                 .addChoice("Trouble in Terrorist Town", "ttt")
-                .addChoice("All games", "all")
+                .addChoice("All games", "all")//new
         ),
 
 
