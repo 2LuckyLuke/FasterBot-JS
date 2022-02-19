@@ -35,6 +35,44 @@ const commands = [
                 .setRequired(true)
         ),
 
+    new SlashCommandBuilder()
+        .setName("setcustomcolor")
+        .setDescription("sets the color of your username (via HEX code)")
+        .addStringOption(option =>
+            option.setName("color")
+                .setDescription("enter a color in HEX format (i.e.: #FA7A55)")
+                .setRequired(true)
+        ),
+
+    new SlashCommandBuilder()
+        .setName("setcolor")
+        .setDescription("sets the color of your username")
+        .addStringOption(option =>
+            option.setName("color")
+                .setDescription("choose one of the colors")
+                .setRequired(true)
+                .addChoice("Minecraft", "mc")
+                .addChoice("Overwatch", "ow")
+                .addChoice("League of Legends", "lol")
+                .addChoice("Trouble in Terrorist Town", "ttt")
+                .addChoice("All games", "all")
+
+        ),
+
+    new SlashCommandBuilder()
+        .setName("setgame")
+        .setDescription("set which channels you want to see")
+        .addStringOption(option =>
+            option.setName("game")
+                .setDescription("choose the game you want to see")
+                .setRequired(true)
+                .addChoice("Minecraft", "mc")
+                .addChoice("Overwatch", "ow")
+                .addChoice("League of Legends", "lol")
+                .addChoice("Trouble in Terrorist Town", "ttt")
+                .addChoice("All games", "all")
+        ),
+
 
 ].map(command => command.toJSON());
 
