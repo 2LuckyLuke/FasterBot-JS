@@ -1,5 +1,6 @@
 const Discord = require("discord.js");
 const {Intents, Permissions} = require("discord.js");
+
 const {customColors} = require("./colors.json");
 
 
