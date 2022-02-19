@@ -79,11 +79,11 @@ const commands = [
         ),
 
     new SlashCommandBuilder()
-        .setName("setgame")
+        .setName("setrole")
         .setDescription("set which channels you want to see")
         .addStringOption(option =>
-            option.setName("game")
-                .setDescription("choose the game you want to see")
+            option.setName("channel")
+                .setDescription("choose the channel you want to see")
                 .setRequired(true)
                 .addChoice("Minecraft", "mc")
                 .addChoice("Overwatch", "ow")
@@ -91,6 +91,7 @@ const commands = [
                 .addChoice("Trouble in Terrorist Town", "ttt")
                 .addChoice("Valorant", "val")
                 .addChoice("Browser Games", "browser")
+                .addChoice("NSFW channels", "nsfw")
 
         ).addBooleanOption( option =>
             option.setName("remove")
