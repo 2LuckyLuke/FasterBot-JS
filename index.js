@@ -2,6 +2,7 @@ const Discord = require("discord.js");
 const {Intents, Permissions} = require("discord.js");
 const {token} = require('./config.json');
 const {customColors} = require("./colors.json");
+const {gameChannels} = require("./channels.json");
 
 
 const client = new Discord.Client({
@@ -30,23 +31,23 @@ client.on('interactionCreate', async interaction => {
         //console.log(interaction);
         let textToSend = interaction.options.getString("text");
         let role = interaction.options.getRole("role");
-	let message;
+        let message;
         if (role !== null) {
             textToSend += ` ${role}`;
-	    allowedRole = role.id;
+            allowedRole = role.id;
 
-	    message = await interaction.reply({
-		allowedMentions: {roles: [role.id]},
-		content: textToSend,
-		fetchReply: true
-	    });
+            message = await interaction.reply({
+                allowedMentions: {roles: [role.id]},
+                content: textToSend,
+                fetchReply: true
+            });
 
-        } else{
-	    message = await interaction.reply({
-		    content: textToSend,
-		    fetchReply: true
-	    });
-	}
+        } else {
+            message = await interaction.reply({
+                content: textToSend,
+                fetchReply: true
+            });
+        }
         let reactions = interaction.options.getString("reactions");
         if (reactions !== null) {
             let emojis = getEmojisFromString(reactions)
@@ -70,40 +71,71 @@ client.on('interactionCreate', async interaction => {
 
     //setgame command
     if (interaction.commandName === "setgame") {
-
         let usersRole = getOrCreateRole(interaction);
+        interaction.guild.channels.fetch(gameChannels[interaction.options.getString("game")]).then((c) => {
+            if (c !== null) {
 
-        interaction.reply({content: "you can now see that channel", ephemeral: true});
+                if (interaction.options.getBoolean("remove") === true) {
+                    c.permissionOverwrites.delete(usersRole.id)
+                    interaction.reply({content: "you can no longer see that channel", ephemeral: true});
+                } else {
+                    if(interaction.options.getString("game") === "nsfw"){
+                        if(interaction.member.roles.cache.find(role => role.id === "726881878816063528")){
+                            c.permissionOverwrites.create(usersRole.id, {VIEW_CHANNEL: true});
+                            interaction.reply({content: "you can now see that channel", ephemeral: true});
+                        }else {
+                            interaction.reply({content: "only members of the <@&726881878816063528> role are allowed for the nsfw role", ephemeral: true});
+                        }
+                    }else{
+                        c.permissionOverwrites.create(usersRole.id, {VIEW_CHANNEL: true});
+                        interaction.reply({content: "you can now see that channel", ephemeral: true});
+                    }
+
+                }
+            } else {
+                console.log("something went wrong; the fetched channel was null");
+                interaction.reply({content: "Something went wrong; try again.", ephemeral: true});
+            }
+        });
     }
 
     //setcolor command
     if (interaction.commandName === "setcolor") {
-
-        let usersRole = getOrCreateRole(interaction);
-
-        interaction.reply({content: `Your color is now: ${interaction.options.getString("color")}`, ephemeral: true});
+        try {
+            let usersRole = await getOrCreateRole(interaction);
+            usersRole.edit({
+                color: customColors[interaction.options.getString("color")]
+            })
+            interaction.reply({
+                content: `Your color is now: ${customColors[interaction.options.getString("color")]}`,
+                ephemeral: true
+            });
+        } catch (e) {
+            console.log(e);
+            interaction.reply({content: `Something went wrong; try again.`, ephemeral: true});
+        }
     }
 
     //setcustomcolor command
     if (interaction.commandName === "setcustomcolor") {
         let regex = /#(?:[a-f\d]{3}){1,2}\b/i;
-        if(regex.test(interaction.options.getString("color"))){
+        if (regex.test(interaction.options.getString("color"))) {
             let usersRole = getOrCreateRole(interaction);
             usersRole.edit({
                 color: interaction.options.getString("color")
             });
-            interaction.reply({content: `Your color is now: ${interaction.options.getString("color")}`, ephemeral: true});
-        }else {
+            interaction.reply({
+                content: `Your color is now: ${interaction.options.getString("color")}`,
+                ephemeral: true
+            });
+        } else {
             interaction.reply({
                 content: `${interaction.options.getString("color")} is not a valid Hex Color. 
                     Use this if you need help: https://rgbacolorpicker.com/hex-color-picker`,
                 ephemeral: true
             });
         }
-
     }
-
-
 });
 
 
@@ -111,7 +143,7 @@ client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
 
     //message starts with '.' (NotSoBot)
-    if (msg.content[0] === "."){
+    if (msg.content[0] === ".") {
         msg.delete();
     }
 
@@ -129,19 +161,20 @@ client.on("messageCreate", async msg => {
 
 client.login(token);
 
-function getOrCreateRole(interaction){
+function getOrCreateRole(interaction) {
 
     //if the user has no own role: create it
     if (!(interaction.member.roles).cache.some(r => r.name === interaction.user.username)) {
-        interaction.guild.roles.create({
+        return interaction.guild.roles.create({
             name: interaction.user.username,
             color: customColors.user,
         }).then((role) => {
             interaction.member.roles.add(role);
+            return role;
         });
+    } else {
+        return interaction.member.roles.cache.find(role => role.name === interaction.user.username);
     }
-
-    return interaction.member.roles.cache.find(role => role.name === interaction.user.username);
 }
 
 function getEmojisFromString(textInput) {
@@ -170,7 +203,7 @@ client.on("voiceStateUpdate", (oldState, newState) => {
         voiceLeave(oldState);
     } else if (oldState.channelId === null) { // joined
         voiceJoin(newState);
-    } else if (newState.channelId === null && oldState.channelId === null){ // moved
+    } else if (newState.channelId === null && oldState.channelId === null) { // moved
         voiceLeave(oldState);
         voiceJoin(newState);
     }

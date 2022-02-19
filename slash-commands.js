@@ -51,12 +51,31 @@ const commands = [
             option.setName("color")
                 .setDescription("choose one of the colors")
                 .setRequired(true)
-                .addChoice("Minecraft", "mc")
-                .addChoice("Overwatch", "ow")
-                .addChoice("League of Legends", "lol")
-                .addChoice("Trouble in Terrorist Town", "ttt")
-                .addChoice("All games", "all")
-
+                .addChoice("Standard User", "user")
+                .addChoice("Navy Blue", "navy")
+                .addChoice("Blue", "blue")
+                .addChoice("Aqua Blue", "aqua")
+                .addChoice("Cyan Blue", "cyan")
+                .addChoice("Dark Blue", "darkblue")
+                .addChoice("Lavender", "lavender")
+                .addChoice("Purple", "purple")
+                .addChoice("Dark Purple", "darkpurple")
+                .addChoice("Magenta", "magenta")
+                .addChoice("Pink", "pink")
+                .addChoice("Red", "red")
+                .addChoice("Dark Red", "darkred")
+                .addChoice("Wine Red", "wine")
+                .addChoice("Cherry Red", "cherry")
+                .addChoice("Orange", "orange")
+                .addChoice("Yellow", "yellow")
+                .addChoice("Maroon Brown", "maroon")
+                .addChoice("Olive Green", "olive")
+                .addChoice("Green", "green")
+                .addChoice("Jade Green", "jade")
+                .addChoice("Lime Green", "lime")
+                .addChoice("Black", "black")
+                .addChoice("Gray", "gray")
+                .addChoice("White", "white")
         ),
 
     new SlashCommandBuilder()
@@ -70,8 +89,14 @@ const commands = [
                 .addChoice("Overwatch", "ow")
                 .addChoice("League of Legends", "lol")
                 .addChoice("Trouble in Terrorist Town", "ttt")
-                .addChoice("All games", "all")//new
-        ),
+                .addChoice("Valorant", "val")
+                .addChoice("Browser Games", "browser")
+
+        ).addBooleanOption( option =>
+            option.setName("remove")
+            .setDescription("set to true if you want to remove that game")
+            .setRequired(false)
+    ),
 
 
 ].map(command => command.toJSON());
