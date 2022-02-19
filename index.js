@@ -62,7 +62,7 @@ client.on('interactionCreate', async interaction => {
     //setgame command
     if (interaction.commandName === "setgame") {
 
-        let role = getOrCreateRole(interaction);
+        let usersRole = getOrCreateRole(interaction);
 
         interaction.reply({content: "you can now see that channel", ephemeral: true});
     }
@@ -70,7 +70,7 @@ client.on('interactionCreate', async interaction => {
     //setcolor command
     if (interaction.commandName === "setcolor") {
 
-        let role = getOrCreateRole(interaction);
+        let usersRole = getOrCreateRole(interaction);
 
         interaction.reply({content: `Your color is now: ${interaction.options.getString("color")}`, ephemeral: true});
     }
@@ -79,8 +79,8 @@ client.on('interactionCreate', async interaction => {
     if (interaction.commandName === "setcustomcolor") {
         let regex = /#(?:[a-f\d]{3}){1,2}\b/i;
         if(regex.test(interaction.options.getString("color"))){
-            let role = getOrCreateRole(interaction);
-            role.edit({
+            let usersRole = getOrCreateRole(interaction);
+            usersRole.edit({
                 color: interaction.options.getString("color")
             });
             interaction.reply({content: `Your color is now: ${interaction.options.getString("color")}`, ephemeral: true});
