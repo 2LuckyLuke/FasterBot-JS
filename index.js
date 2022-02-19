@@ -29,11 +29,14 @@ client.on('interactionCreate', async interaction => {
         let textToSend = interaction.options.getString("text");
         let role = interaction.options.getRole("role");
         if (role !== null) {
-            let roleID = "<@&" + role.id + ">";
-            textToSend += " " + roleID;
+            textToSend += ` ${role}`;
         }
         let reactions = interaction.options.getString("reactions");
-        const message = await interaction.reply({content: textToSend, fetchReply: true});
+        const message = await interaction.reply({
+            allowedMentions: {roles: [role.id]},
+            content: textToSend,
+            fetchReply: true
+        });
 
         if (reactions !== null) {
             let emojis = getEmojisFromString(reactions)
@@ -57,9 +60,16 @@ client.on('interactionCreate', async interaction => {
 
 });
 
-//upvotes in meme channel
+
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
+
+    //message starts with '.' (NotSoBot)
+    if (msg.content[0] === "."){
+        msg.delete();
+    }
+
+    //upvotes in meme channel
     if (msg.channelId !== "663522966633709568") return;
     linkCheck = msg.content.split(":");
 
@@ -69,8 +79,8 @@ client.on("messageCreate", async msg => {
         msg.react("⬆️");
         msg.react("⬇️");
     }
-
 });
+
 
 client.login(process.env.TOKEN);
 
