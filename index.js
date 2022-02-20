@@ -16,7 +16,7 @@ const client = new Discord.Client({
 
 client.on("ready", () => {
     console.log(`Login successfull: ${client.user.tag}`);
-})
+});
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
@@ -28,7 +28,6 @@ client.on('interactionCreate', async interaction => {
 
     //poll command
     if (interaction.commandName === "poll") {
-        //console.log(interaction);
         let textToSend = interaction.options.getString("text");
         let role = interaction.options.getRole("role");
         let message;
@@ -62,19 +61,19 @@ client.on('interactionCreate', async interaction => {
 
     //fragfinn command
     if (interaction.commandName === "fragfinn") {
-        interaction.reply({content: "Our search engine has been informed.", ephemeral: true})
+        interaction.reply({content: "Our search engine has been informed.", ephemeral: true});
 
         let response = interaction.options.getString("question");
         response = "<@561491781733187584> " + response;
-        interaction.channel.send(response)
+        interaction.channel.send(response);
     }
 
     //setrole command
     if (interaction.commandName === "setrole") {
-        try{
+        try {
             let usersRole = await getOrCreateRole(interaction);
             //setrole for nsfw
-            if(interaction.options.getString("channel") === "nsfw"){
+            if (interaction.options.getString("channel") === "nsfw") {
                 if (interaction.options.getBoolean("remove") === true) {
                     interaction.guild.channels.fetch("828395755265720320").then(c => {
                         c.permissionOverwrites.delete(usersRole.id);
@@ -84,7 +83,7 @@ client.on('interactionCreate', async interaction => {
                     });
                     interaction.reply({content: "you can no longer see those channels", ephemeral: true});
                 } else {
-                    if(interaction.member.roles.cache.find(role => role.id === "726881878816063528")){
+                    if (interaction.member.roles.cache.find(role => role.id === "726881878816063528")) {
                         interaction.guild.channels.fetch("828395755265720320").then(c => {
                             c.permissionOverwrites.create(usersRole.id, {VIEW_CHANNEL: true});
                         });
@@ -92,16 +91,18 @@ client.on('interactionCreate', async interaction => {
                             c.permissionOverwrites.create(usersRole.id, {VIEW_CHANNEL: true});
                         });
                         interaction.reply({content: "you can now see those channels", ephemeral: true});
-                    }else {
-                        interaction.reply({content: "only members of the <@&726881878816063528> role are allowed for the nsfw role", ephemeral: true});
+                    } else {
+                        interaction.reply({
+                            content: "only members of the <@&726881878816063528> role are allowed for the nsfw role",
+                            ephemeral: true
+                        });
                     }
                 }
-            }else{
+            } else {
                 interaction.guild.channels.fetch(gameChannels[interaction.options.getString("channel")]).then((c) => {
                     if (c !== null) {
-
                         if (interaction.options.getBoolean("remove") === true) {
-                            c.permissionOverwrites.delete(usersRole.id)
+                            c.permissionOverwrites.delete(usersRole.id);
                             interaction.reply({content: "you can no longer see that channel", ephemeral: true});
                         } else {
                             c.permissionOverwrites.create(usersRole.id, {VIEW_CHANNEL: true});
@@ -113,7 +114,7 @@ client.on('interactionCreate', async interaction => {
                     }
                 });
             }
-        }catch (e) {
+        } catch (e) {
             console.log(e);
             interaction.reply({content: "Something went wrong; try again.", ephemeral: true});
         }
@@ -126,7 +127,7 @@ client.on('interactionCreate', async interaction => {
             let usersRole = await getOrCreateRole(interaction);
             usersRole.edit({
                 color: customColors[interaction.options.getString("color")]
-            })
+            });
             interaction.reply({
                 content: `Your color is now: ${customColors[interaction.options.getString("color")]}`,
                 ephemeral: true
@@ -151,8 +152,7 @@ client.on('interactionCreate', async interaction => {
             });
         } else {
             interaction.reply({
-                content: `${interaction.options.getString("color")} is not a valid Hex Color. 
-                    Use this if you need help: https://rgbacolorpicker.com/hex-color-picker`,
+                content: `${interaction.options.getString("color")} is not a valid Hex Color. Use this if you need help: https://rgbacolorpicker.com/hex-color-picker`,
                 ephemeral: true
             });
         }
@@ -172,9 +172,7 @@ client.on("messageCreate", async msg => {
     if (msg.channelId !== "663522966633709568") return;
     linkCheck = msg.content.split(":");
 
-    if (msg.attachments.size > 0
-        || linkCheck[0].toLowerCase().includes("http")
-    ) {
+    if (msg.attachments.size > 0 || linkCheck[0].toLowerCase().includes("http")) {
         msg.react("⬆️");
         msg.react("⬇️");
     }
@@ -224,11 +222,13 @@ client.on("voiceStateUpdate", (oldState, newState) => {
         voiceLeave(oldState);
     } else if (oldState.channelId === null) { // joined
         voiceJoin(newState);
-    } else if (newState.channelId === null && oldState.channelId === null) { // moved
+    } else if (newState.channelId !== oldState.channelId) { // moved
         voiceLeave(oldState);
         voiceJoin(newState);
+    } else {
+        console.log("not left; not joined; old and new channel are the same");
     }
-})
+});
 
 function voiceLeave(state) {
     if (!state.channel.members.size > 0) {
