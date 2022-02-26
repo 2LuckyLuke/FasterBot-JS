@@ -225,8 +225,6 @@ client.on("voiceStateUpdate", (oldState, newState) => {
     } else if (newState.channelId !== oldState.channelId) { // moved
         voiceLeave(oldState);
         voiceJoin(newState);
-    } else {
-        console.log("not left; not joined; old and new channel are the same");
     }
 });
 
