@@ -93,13 +93,20 @@ const commands = [
                 .addChoice("Terraria", "terra")
                 .addChoice("Browser Games", "browser")
                 .addChoice("NSFW channels", "nsfw")
-
-        ).addBooleanOption( option =>
-            option.setName("remove")
+        ).addBooleanOption(option =>
+        option.setName("remove")
             .setDescription("set to true if you want to remove that game")
             .setRequired(false)
     ),
 
+    new SlashCommandBuilder()
+        .setName("clear")
+        .setDescription("deletes the specified amount of messages")
+        .addIntegerOption(option =>
+            option.setName("messages")
+                .setDescription("the amount of messages to delete")
+                .setRequired(true)
+        ),
 
 ].map(command => command.toJSON());
 
