@@ -296,9 +296,10 @@ function voiceJoin(state) {
 }
 
 function createTextChannel(channelName, state) {
+
     state.guild.channels.create(channelName, {
         type: "GUILD_TEXT",
-        parent: "663511269696995375",
+        parent: state.channel.parent,
         permissionOverwrites: [
             {type: "role", id: everyoneID, deny: [Permissions.FLAGS.VIEW_CHANNEL]},
             {type: "member", id: state.member.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]},
