@@ -86,7 +86,7 @@ const commands = [
                 .setDescription("choose the channel you want to see")
                 .setRequired(true)
                 .addChoice("Minecraft", "mc")
-                .addChoice("Counter-strike Golbal Offensive", "csgo")
+                .addChoice("Counter-Strike Global Offensive", "csgo")
                 .addChoice("Player Unknown Battlegrounds", "pubg")
                 .addChoice("Overwatch", "ow")
                 .addChoice("League of Legends", "lol")
