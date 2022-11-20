@@ -95,6 +95,7 @@ const commands = [
                 .addChoice("Terraria", "terra")
                 .addChoice("Browser Games", "browser")
                 .addChoice("Genshin Impact", "genshin")
+                .addChoice("Pokémon", "poke")
                 .addChoice("NSFW channels", "nsfw")
         ).addBooleanOption(option =>
         option.setName("remove")
