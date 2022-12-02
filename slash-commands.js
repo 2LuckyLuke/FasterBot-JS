@@ -96,6 +96,7 @@ const commands = [
                 .addChoice("Browser Games", "browser")
                 .addChoice("Genshin Impact", "genshin")
                 .addChoice("Pokémon", "poke")
+                .addChoice("Minecraft Event", "mc-event")
                 .addChoice("NSFW channels", "nsfw")
         ).addBooleanOption(option =>
         option.setName("remove")
