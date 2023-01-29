@@ -16,6 +16,7 @@ const client = new Discord.Client({
 
 client.on("ready", () => {
     console.log(`Login successfull: ${client.user.tag}`);
+    client.user.setActivity("with others", {type: "COMPETING"});
 });
 
 client.on('interactionCreate', async interaction => {
