@@ -1,1 +1,4 @@
 config.json
+node_modules/*
+Log.txt
+FasterBot.log
