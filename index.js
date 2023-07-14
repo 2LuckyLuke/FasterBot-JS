@@ -2,9 +2,11 @@ const Discord = require("discord.js");
 const {Intents, Permissions} = require("discord.js");
 const {token} = require('./config.json');
 const {customColors} = require("./colors.json");
-const {gameChannels} = require("./channels.json");
+const {gameChannels, categories} = require("./channels.json");
+const {carousel_horse} = require("yarn/lib/cli");
 
-
+let textToVoiceID = new Map();
+let everyoneID;
 const client = new Discord.Client({
     partials: ["MESSAGE", "CHANNEL", "REACTION"],
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
@@ -14,9 +16,36 @@ const client = new Discord.Client({
     restTimeOffset: 0,
 });
 
+
+client.login(token)
+    .then(() => console.log(`Logged in successfully via: ${client.user.tag}`))
+    .catch((err) => {
+        console.log("Error logging into Discord: " + err);
+    });
+
 client.on("ready", () => {
-    console.log(`Login successfull: ${client.user.tag}`);
-    client.user.setActivity("with others", {type: "COMPETING"});
+    client.user.setActivity("you", {type: "WATCHING"});
+    client.guilds.fetch("663511269696995364").then(guild => {
+        everyoneID = guild.roles.everyone;
+        //remove existing channels in category
+        guild.channels.fetch(categories.voice).then((category) => {
+            if (category.type === "GUILD_CATEGORY"){
+                category.children.forEach(function (channel){
+                    if (channel.type === "GUILD_TEXT") {
+                        channel.delete().catch((err) => {
+                            console.log("Error deleting text channel: " + err);
+                        });
+                    }else if (channel.isVoice && channel.members.size > 0) {
+                        channel.members.forEach(function (member) {
+                            voiceJoin(member.voice);
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    //todo fetch users in channels and text channels in category
 });
 
 client.on('interactionCreate', async interaction => {
@@ -24,6 +53,7 @@ client.on('interactionCreate', async interaction => {
 
     //ping command
     if (interaction.commandName === 'ping') {
+        commands.ping();
         interaction.reply({content: 'Pong!'});
     }
 
@@ -190,7 +220,6 @@ client.on('interactionCreate', async interaction => {
 
 });
 
-
 client.on("messageCreate", async msg => {
     if (msg.author.bot) return;
 
@@ -208,8 +237,6 @@ client.on("messageCreate", async msg => {
         msg.react("⬇️");
     }
 });
-
-client.login(token);
 
 function getOrCreateRole(interaction) {
 
@@ -240,12 +267,6 @@ function getEmojisFromString(textInput) {
 
 // logic for text and role creation
 
-let textToVoiceID = new Map();
-
-let everyoneID;
-client.guilds.fetch("663511269696995364").then(guild => {
-    everyoneID = guild.roles.everyone;
-});
 
 
 client.on("voiceStateUpdate", (oldState, newState) => {
