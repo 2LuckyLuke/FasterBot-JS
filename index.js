@@ -317,6 +317,35 @@ function voiceJoin(state) {
     }
 }
 
+function voiceMultipleJoin(state, members) {
+    if (textToVoiceID.has(state.channel.id)){
+        state.guild.channels.fetch(textToVoiceID.get(state.channel.id)).then(textChannel => {
+            for (let member in members) {
+                try {
+                    textChannel.permissionOverwrites.create(member.id, {VIEW_CHANNEL: true});
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+        });
+    } else {
+        let channelName = state.channel.name;
+        channelName = channelName.substring(channelName.indexOf(" "));
+        let overwrites = [{type: "role", id: everyoneID, deny: [Permissions.FLAGS.VIEW_CHANNEL]}];
+        for (member in members) {
+            overwrites.push({type: "member", id: member.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]});
+        }
+        state.guild.channels.create(channelName, {
+            type: "GUILD_TEXT",
+            parent: state.channel.parent,
+            permissionOverwrites: overwrites
+        }).then(textChannel => {
+            textToVoiceID.set(state.channel.id, textChannel.id);
+        });
+
+    }
+}
+
 function createTextChannel(channelName, state) {
 
     state.guild.channels.create(channelName, {
