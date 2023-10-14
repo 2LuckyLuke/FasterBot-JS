@@ -36,16 +36,14 @@ client.on("ready", () => {
                             console.log("Error deleting text channel: " + err);
                         });
                     }else if (channel.isVoice && channel.members.size > 0) {
-                        channel.members.forEach(function (member) {
-                            voiceJoin(member.voice);
-                        });
+                        voiceMultipleJoin(channel.members.at(0).voice, channel.members);
                     }
                 });
             }
         });
     });
 
-    //todo fetch users in channels and text channels in category
+    //todo fetch users in channels and text channels in other category
 });
 
 client.on('interactionCreate', async interaction => {
@@ -320,21 +318,22 @@ function voiceJoin(state) {
 function voiceMultipleJoin(state, members) {
     if (textToVoiceID.has(state.channel.id)){
         state.guild.channels.fetch(textToVoiceID.get(state.channel.id)).then(textChannel => {
-            for (let member in members) {
+            members.forEach((member) => {
                 try {
                     textChannel.permissionOverwrites.create(member.id, {VIEW_CHANNEL: true});
                 } catch (e) {
                     console.log(e);
                 }
-            }
+            })
         });
     } else {
         let channelName = state.channel.name;
         channelName = channelName.substring(channelName.indexOf(" "));
         let overwrites = [{type: "role", id: everyoneID, deny: [Permissions.FLAGS.VIEW_CHANNEL]}];
-        for (member in members) {
+        members.forEach((member) => {
             overwrites.push({type: "member", id: member.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]});
-        }
+        })
+        console.log(overwrites)
         state.guild.channels.create(channelName, {
             type: "GUILD_TEXT",
             parent: state.channel.parent,
