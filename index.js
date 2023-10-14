@@ -333,7 +333,6 @@ function voiceMultipleJoin(state, members) {
         members.forEach((member) => {
             overwrites.push({type: "member", id: member.id, allow: [Permissions.FLAGS.VIEW_CHANNEL]});
         })
-        console.log(overwrites)
         state.guild.channels.create(channelName, {
             type: "GUILD_TEXT",
             parent: state.channel.parent,
