@@ -36,9 +36,7 @@ client.on("ready", () => {
                             console.log("Error deleting text channel: " + err);
                         });
                     }else if (channel.isVoice && channel.members.size > 0) {
-                        channel.members.forEach(function (member) {
-                            voiceJoin(member.voice);
-                        });
+                        voiceMultipleJoin(channel.members[0].voice, channel.members);
                     }
                 });
             }
