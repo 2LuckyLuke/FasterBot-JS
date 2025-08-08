@@ -1,4 +1,4 @@
-function fragFinnCommand(interaction) {
+export function fragFinnCommand(interaction) {
   interaction.reply({
     content: "Our search engine has been informed.",
     ephemeral: true,

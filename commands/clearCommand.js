@@ -1,4 +1,4 @@
-function clearCommand(interaction) {
+export function clearCommand(interaction) {
   let messageNumber = interaction.options.getInteger("messages");
   try {
     if (messageNumber > 100) {

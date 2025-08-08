@@ -1,10 +1,11 @@
-async function pollCommand(interaction) {
+import { getEmojisFromString } from "../index.js";
+
+export async function pollCommand(interaction) {
   let textToSend = interaction.options.getString("text");
   let role = interaction.options.getRole("role");
   let message;
   if (role !== null) {
     textToSend += ` ${role}`;
-    allowedRole = role.id;
 
     message = await interaction.reply({
       allowedMentions: { roles: [role.id] },
@@ -20,8 +21,8 @@ async function pollCommand(interaction) {
   let reactions = interaction.options.getString("reactions");
   if (reactions !== null) {
     let emojis = getEmojisFromString(reactions);
-    for (let i = 0; i < emojis.length; i++) {
-      message.react(emojis[i]);
+    for (let emoji of emojis) {
+      message.react(emoji);
     }
   } else {
     message.react("⬆️");

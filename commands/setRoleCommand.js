@@ -1,4 +1,6 @@
-async function setRoleCommand(interaction) {
+import { getOrCreateRole } from "../index.js";
+
+export async function setRoleCommand(interaction, gameChannels) {
   try {
     let usersRole = await getOrCreateRole(interaction);
     //setrole for nsfw

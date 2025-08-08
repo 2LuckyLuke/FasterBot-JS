@@ -7,5 +7,7 @@
     "discord-api-types": "^0.37.103",
     "discord.js": "^13.6.0",
     "yarn": "^1.22.22 "
-  }
+
+  },
+  "type": "module"
 }

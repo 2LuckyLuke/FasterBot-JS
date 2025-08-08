@@ -1,4 +1,6 @@
-async function setColorCommand(interaction) {
+import { getOrCreateRole } from "../index.js";
+
+export async function setColorCommand(interaction, customColors) {
   try {
     let usersRole = await getOrCreateRole(interaction);
     usersRole.edit({

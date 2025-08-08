@@ -1,4 +1,6 @@
-async function setCustomColorCommand(interaction) {
+import { getOrCreateRole } from "../index.js";
+
+export async function setCustomColorCommand(interaction) {
   let regex = /#(?:[a-f\d]{3}){1,2}\b/i;
   if (regex.test(interaction.options.getString("color"))) {
     let usersRole = await getOrCreateRole(interaction);

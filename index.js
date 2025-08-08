@@ -1,8 +1,24 @@
-const Discord = require("discord.js");
-const { Intents, Permissions } = require("discord.js");
-const { token } = require("./data/config.json");
-const { customColors } = require("./data/colors.json");
-const { gameChannels, categories } = require("./channels.json");
+import Discord from "discord.js";
+import { Intents, Permissions } from "discord.js";
+
+import fs from "fs";
+
+import {
+  clearCommand,
+  fragFinnCommand,
+  pollCommand,
+  setColorCommand,
+  setCustomColorCommand,
+  setRoleCommand,
+} from "./commands/index.js";
+
+const config = JSON.parse(fs.readFileSync("./data/config.json", "utf-8"));
+const colors = JSON.parse(fs.readFileSync("./data/colors.json", "utf-8"));
+const channels = JSON.parse(fs.readFileSync("./data/channels.json", "utf-8"));
+
+const { token } = config;
+const { customColors } = colors;
+const { categories, gameChannels } = channels;
 
 let textToVoiceID = new Map();
 let everyoneID;
@@ -59,7 +75,6 @@ client.on("interactionCreate", async (interaction) => {
 
   //ping command
   if (interaction.commandName === "ping") {
-    commands.ping();
     interaction.reply({ content: "Pong!" });
   }
 
@@ -75,12 +90,12 @@ client.on("interactionCreate", async (interaction) => {
 
   //setrole command
   if (interaction.commandName === "setrole") {
-    setRoleCommand(interaction);
+    setRoleCommand(interaction, gameChannels);
   }
 
   //setcolor command
   if (interaction.commandName === "setcolor") {
-    setColorCommand(interaction);
+    setColorCommand(interaction, customColors);
   }
 
   //setcustomcolor command
@@ -97,7 +112,7 @@ client.on("interactionCreate", async (interaction) => {
 client.on("messageCreate", async (msg) => {
   if (msg.author.bot) return;
 
-  //message starts with '.' (NotSoBot)
+  //message starts with '.' (delete messages that are meant for the NotSoBot)
   if (msg.content[0] === ".") {
     msg.delete();
   }
@@ -112,7 +127,7 @@ client.on("messageCreate", async (msg) => {
   }
 });
 
-function getOrCreateRole(interaction) {
+export function getOrCreateRole(interaction) {
   //if the user has no own role: create it
   if (
     !interaction.member.roles.cache.some(
@@ -135,15 +150,9 @@ function getOrCreateRole(interaction) {
   }
 }
 
-function getEmojisFromString(textInput) {
-  let inputs = textInput.split("");
-  let reactions = [];
-  for (let i = 0; i < inputs.length; i++) {
-    if (inputs[i].match(/\p{Emoji}/gu) && !inputs[i].match(/[0-9]/g)) {
-      reactions.push(inputs[i]);
-    }
-  }
-  return reactions;
+export function getEmojisFromString(textInput) {
+  const reactions = textInput.match(/\p{Emoji}/gu);
+  return reactions ? reactions : [];
 }
 
 // logic for text and role creation
