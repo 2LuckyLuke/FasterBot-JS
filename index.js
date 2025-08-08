@@ -1,5 +1,4 @@
-import Discord from "discord.js";
-import { Intents, Permissions } from "discord.js";
+import { Events, Client, GatewayIntentBits } from "discord.js";
 
 import fs from "fs";
 
@@ -22,22 +21,26 @@ const { categories, gameChannels } = channels;
 
 let textToVoiceID = new Map();
 let everyoneID;
-const client = new Discord.Client({
+const client = new Client({
   partials: ["MESSAGE", "CHANNEL", "REACTION"],
   intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-    Intents.FLAGS.GUILD_BANS,
-    Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS,
-    Intents.FLAGS.GUILD_INTEGRATIONS,
-    Intents.FLAGS.GUILD_INVITES,
-    Intents.FLAGS.GUILD_MESSAGE_TYPING,
-    Intents.FLAGS.GUILD_SCHEDULED_EVENTS,
-    Intents.FLAGS.GUILD_VOICE_STATES,
-    Intents.FLAGS.GUILD_WEBHOOKS,
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildExpressions,
+    GatewayIntentBits.GuildIntegrations,
+    GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.GuildMessageTyping,
+    GatewayIntentBits.GuildScheduledEvents,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildWebhooks,
   ],
   restTimeOffset: 0,
+});
+
+client.once(Events.ClientReady, (readyClient) => {
+  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
 client
@@ -151,8 +154,10 @@ export function getOrCreateRole(interaction) {
 }
 
 export function getEmojisFromString(textInput) {
-  const reactions = textInput.match(/\p{Emoji}/gu);
-  return reactions ? reactions : [];
+  // This regex matches most Unicode emojis, but not numbers or Discord custom emoji syntax
+  const emojiRegex = /([\p{Emoji_Presentation}\u200d\ufe0f]+)/gu;
+  const emojis = textInput.match(emojiRegex);
+  return emojis ? emojis : [];
 }
 
 // logic for text and role creation

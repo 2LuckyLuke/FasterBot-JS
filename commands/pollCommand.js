@@ -22,7 +22,11 @@ export async function pollCommand(interaction) {
   if (reactions !== null) {
     let emojis = getEmojisFromString(reactions);
     for (let emoji of emojis) {
-      message.react(emoji);
+      try {
+        await message.react(emoji);
+      } catch (error) {
+        // Private emoji used
+      }
     }
   } else {
     message.react("⬆️");
