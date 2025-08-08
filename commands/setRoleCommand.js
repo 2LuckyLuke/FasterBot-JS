@@ -23,10 +23,16 @@ export async function setRoleCommand(interaction, gameChannels) {
           )
         ) {
           interaction.guild.channels.fetch("828395755265720320").then((c) => {
-            c.permissionOverwrites.create(usersRole.id, { VIEW_CHANNEL: true });
+            c.permissionOverwrites.create({
+              name: usersRole.id,
+              ViewChannel: true,
+            });
           });
           interaction.guild.channels.fetch("792028626517622784").then((c) => {
-            c.permissionOverwrites.create(usersRole.id, { VIEW_CHANNEL: true });
+            c.permissionOverwrites.create({
+              name: usersRole.id,
+              ViewChannel: true,
+            });
           });
           interaction.reply({
             content: "you can now see those channels",
@@ -52,8 +58,9 @@ export async function setRoleCommand(interaction, gameChannels) {
                 ephemeral: true,
               });
             } else {
-              c.permissionOverwrites.create(usersRole.id, {
-                VIEW_CHANNEL: true,
+              c.permissionOverwrites.create({
+                name: usersRole.id,
+                ViewChannel: true,
               });
               interaction.reply({
                 content: "you can now see that channel",

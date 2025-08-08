@@ -1,4 +1,12 @@
-import { Events, Client, GatewayIntentBits } from "discord.js";
+import {
+  Events,
+  Client,
+  GatewayIntentBits,
+  PermissionFlagsBits,
+  ChannelType,
+  OverwriteType,
+  ActivityType,
+} from "discord.js";
 
 import fs from "fs";
 
@@ -15,7 +23,7 @@ const config = JSON.parse(fs.readFileSync("./data/config.json", "utf-8"));
 const colors = JSON.parse(fs.readFileSync("./data/colors.json", "utf-8"));
 const channels = JSON.parse(fs.readFileSync("./data/channels.json", "utf-8"));
 
-const { token } = config;
+const { token, tSuckedServerID } = config;
 const { customColors } = colors;
 const { categories, gameChannels } = channels;
 
@@ -51,22 +59,26 @@ client
   });
 
 client.on("ready", () => {
-  client.user.setActivity("you", { type: "WATCHING" });
-  client.guilds.fetch("663511269696995364").then((guild) => {
+  client.user.setActivity("you", { type: ActivityType.Watching });
+  client.guilds.fetch(tSuckedServerID).then((guild) => {
     everyoneID = guild.roles.everyone;
     //remove existing channels in category
     guild.channels.fetch(categories.voice).then((category) => {
-      if (category.type === "GUILD_CATEGORY") {
-        category.children.forEach(function (channel) {
-          if (channel.type === "GUILD_TEXT") {
-            channel.delete().catch((err) => {
-              console.log("Error deleting text channel: " + err);
-            });
-          } else if (channel.isVoice && channel.members.size > 0) {
-            voiceMultipleJoin(channel.members.at(0).voice, channel.members);
-          }
-        });
+      if (category.type !== ChannelType.GuildCategory) {
+        return;
       }
+      category.children.cache.each((channel) => {
+        if (channel.type === ChannelType.GuildText) {
+          channel.delete().catch((err) => {
+            console.log("Error deleting text channel: " + err);
+          });
+        } else if (
+          channel.type === ChannelType.GuildVoice &&
+          channel.members.size > 0
+        ) {
+          voiceMultipleJoin(channel.members.at(0).voice, channel.members);
+        }
+      });
     });
   });
 
@@ -208,7 +220,7 @@ function voiceJoin(state) {
       .then((textChannel) => {
         try {
           textChannel.permissionOverwrites.create(state.member.id, {
-            VIEW_CHANNEL: true,
+            ViewChannel: true,
           });
         } catch (e) {
           console.log(e);
@@ -229,7 +241,7 @@ function voiceMultipleJoin(state, members) {
         members.forEach((member) => {
           try {
             textChannel.permissionOverwrites.create(member.id, {
-              VIEW_CHANNEL: true,
+              ViewChannel: true,
             });
           } catch (e) {
             console.log(e);
@@ -240,18 +252,23 @@ function voiceMultipleJoin(state, members) {
     let channelName = state.channel.name;
     channelName = channelName.substring(channelName.indexOf(" "));
     let overwrites = [
-      { type: "role", id: everyoneID, deny: [Permissions.FLAGS.VIEW_CHANNEL] },
+      {
+        type: OverwriteType.Role,
+        id: everyoneID,
+        deny: [PermissionFlagsBits.ViewChannel],
+      },
     ];
     members.forEach((member) => {
       overwrites.push({
-        type: "member",
+        type: OverwriteType.Member,
         id: member.id,
-        allow: [Permissions.FLAGS.VIEW_CHANNEL],
+        allow: [PermissionFlagsBits.ViewChannel],
       });
     });
     state.guild.channels
-      .create(channelName, {
-        type: "GUILD_TEXT",
+      .create({
+        name: channelName,
+        type: ChannelType.GuildText,
         parent: state.channel.parent,
         permissionOverwrites: overwrites,
       })
@@ -263,19 +280,20 @@ function voiceMultipleJoin(state, members) {
 
 function createTextChannel(channelName, state) {
   state.guild.channels
-    .create(channelName, {
-      type: "GUILD_TEXT",
+    .create({
+      name: channelName,
+      type: ChannelType.GuildText,
       parent: state.channel.parent,
       permissionOverwrites: [
         {
-          type: "role",
+          type: OverwriteType.Role,
           id: everyoneID,
-          deny: [Permissions.FLAGS.VIEW_CHANNEL],
+          deny: [PermissionFlagsBits.ViewChannel],
         },
         {
-          type: "member",
+          type: OverwriteType.Member,
           id: state.member.id,
-          allow: [Permissions.FLAGS.VIEW_CHANNEL],
+          allow: [PermissionFlagsBits.ViewChannel],
         },
       ],
     })

@@ -1,6 +1,6 @@
 {
   "name": "fasterbot",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "dependencies": {
     "@discordjs/builders": "^1.11.2",
     "@discordjs/rest": "^2.5.1",
