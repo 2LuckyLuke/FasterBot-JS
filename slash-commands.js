@@ -1,8 +1,8 @@
-const { SlashCommandBuilder } = require("@discordjs/builders");
-console.log(`Login successfull: ${client.user.tag}`);
-const { REST } = require("@discordjs/rest");
-const { Routes } = require("discord-api-types/v9");
-const { clientId, guildId, token } = require("./config.json");
+import { SlashCommandBuilder, Routes, REST } from "discord.js";
+import fs from "fs";
+
+const config = JSON.parse(fs.readFileSync("./data/config.json", "utf-8"));
+const { clientId, guildId, token } = config;
 
 const commands = [
   new SlashCommandBuilder()
@@ -55,31 +55,33 @@ const commands = [
         .setName("color")
         .setDescription("choose one of the colors")
         .setRequired(true)
-        .addChoice("Standard User (#c98577)", "user")
-        .addChoice("Navy Blue (#000080)", "navy")
-        .addChoice("Blue (#0000FF)", "blue")
-        .addChoice("Aqua Blue (#00FFFF)", "aqua")
-        .addChoice("Cyan Blue (#008080)", "cyan")
-        .addChoice("Dark Blue (#00008B)", "darkblue")
-        .addChoice("Lavender (#E6E6FA)", "lavender")
-        .addChoice("Purple (#800080)", "purple")
-        .addChoice("Dark Purple (#301934)", "darkpurple")
-        .addChoice("Magenta (#ff0092)", "magenta")
-        .addChoice("Pink (#dd02fa)", "pink")
-        .addChoice("Red (#ff0000)", "red")
-        .addChoice("Dark Red (#8B0000)", "darkred")
-        .addChoice("Wine Red (#722F37)", "wine")
-        .addChoice("Cherry Red (#D2042D)", "cherry")
-        .addChoice("Orange (#ff8800)", "orange")
-        .addChoice("Yellow (#FFFF00)", "yellow")
-        .addChoice("Maroon Brown (#800000)", "maroon")
-        .addChoice("Olive Green (#808000)", "olive")
-        .addChoice("Green (#008000)", "green")
-        .addChoice("Jade Green (#00A36C)", "jade")
-        .addChoice("Lime Green (#00FF00)", "lime")
-        .addChoice("Black (#000000)", "black")
-        .addChoice("Gray (#808080)", "gray")
-        .addChoice("White (#FFFFFF)", "white")
+        .addChoices([
+          { name: "Standard User (#c98577)", value: "user" },
+          { name: "Navy Blue (#000080)", value: "navy" },
+          { name: "Blue (#0000FF)", value: "blue" },
+          { name: "Aqua Blue (#00FFFF)", value: "aqua" },
+          { name: "Cyan Blue (#008080)", value: "cyan" },
+          { name: "Dark Blue (#00008B)", value: "darkblue" },
+          { name: "Lavender (#E6E6FA)", value: "lavender" },
+          { name: "Purple (#800080)", value: "purple" },
+          { name: "Dark Purple (#301934)", value: "darkpurple" },
+          { name: "Magenta (#ff0092)", value: "magenta" },
+          { name: "Pink (#dd02fa)", value: "pink" },
+          { name: "Red (#ff0000)", value: "red" },
+          { name: "Dark Red (#8B0000)", value: "darkred" },
+          { name: "Wine Red (#722F37)", value: "wine" },
+          { name: "Cherry Red (#D2042D)", value: "cherry" },
+          { name: "Orange (#ff8800)", value: "orange" },
+          { name: "Yellow (#FFFF00)", value: "yellow" },
+          { name: "Maroon Brown (#800000)", value: "maroon" },
+          { name: "Olive Green (#808000)", value: "olive" },
+          { name: "Green (#008000)", value: "green" },
+          { name: "Jade Green (#00A36C)", value: "jade" },
+          { name: "Lime Green (#00FF00)", value: "lime" },
+          { name: "Black (#000000)", value: "black" },
+          { name: "Gray (#808080)", value: "gray" },
+          { name: "White (#FFFFFF)", value: "white" },
+        ])
     ),
 
   new SlashCommandBuilder()
@@ -90,20 +92,21 @@ const commands = [
         .setName("channel")
         .setDescription("choose the channel you want to see")
         .setRequired(true)
-        .addChoice("Minecraft", "mc")
-        .addChoice("Counter-Strike Global Offensive", "csgo")
-        .addChoice("Player Unknown Battlegrounds", "pubg")
-        .addChoice("Overwatch", "ow")
-        .addChoice("League of Legends", "lol")
-        .addChoice("Trouble in Terrorist Town", "ttt")
-        .addChoice("Valorant", "val")
-        .addChoice("Terraria", "terra")
-        .addChoice("Browser Games", "browser")
-        .addChoice("Genshin Impact", "genshin")
-        .addChoice("Pokémon", "poke")
-        .addChoice("Minecraft Event", "mc-event")
-        .addChoice("Film", "film")
-        .addChoice("NSFW channels", "nsfw")
+        .addChoices([
+          { name: "Minecraft", value: "mc" },
+          { name: "Counter-Strike Global Offensive", value: "csgo" },
+          { name: "Player Unknown Battlegrounds", value: "pubg" },
+          { name: "Overwatch", value: "ow" },
+          { name: "League of Legends", value: "lol" },
+          { name: "Trouble in Terrorist Town", value: "ttt" },
+          { name: "Valorant", value: "val" },
+          { name: "Terraria", value: "terra" },
+          { name: "Browser Games", value: "browser" },
+          { name: "Genshin Impact", value: "genshin" },
+          { name: "Pokémon", value: "poke" },
+          { name: "Minecraft Event", value: "mc-event" },
+          { name: "Film", value: "film" },
+        ])
     )
     .addBooleanOption((option) =>
       option
@@ -123,7 +126,7 @@ const commands = [
     ),
 ].map((command) => command.toJSON());
 
-const rest = new REST({ version: "9" }).setToken(token);
+const rest = new REST().setToken(token);
 
 rest
   .put(Routes.applicationGuildCommands(clientId, guildId), { body: commands })
