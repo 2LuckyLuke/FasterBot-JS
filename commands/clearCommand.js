@@ -1,3 +1,5 @@
+import { MessageFlags } from "discord.js";
+
 export function clearCommand(interaction) {
   let messageNumber = interaction.options.getInteger("messages");
   try {
@@ -15,13 +17,13 @@ export function clearCommand(interaction) {
         }
         interaction.reply({
           content: `Deleted \`${messageNumber}\` messages.`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       });
   } catch (e) {
     interaction.reply({
       content: `Error: ${e}`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }

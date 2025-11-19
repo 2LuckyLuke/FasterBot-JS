@@ -1,7 +1,9 @@
+import { MessageFlags } from "discord.js";
+
 export function fragFinnCommand(interaction) {
   interaction.reply({
     content: "Our search engine has been informed.",
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 
   let response = interaction.options.getString("question");

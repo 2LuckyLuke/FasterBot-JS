@@ -1,86 +1,42 @@
+import { MessageFlags } from "discord.js";
 import { getOrCreateRole } from "../index.js";
 
 export async function setRoleCommand(interaction, gameChannels) {
   try {
-    let usersRole = await getOrCreateRole(interaction);
-    //setrole for nsfw
-    if (interaction.options.getString("channel") === "nsfw") {
-      if (interaction.options.getBoolean("remove") === true) {
-        interaction.guild.channels.fetch("828395755265720320").then((c) => {
-          c.permissionOverwrites.delete(usersRole.id);
-        });
-        interaction.guild.channels.fetch("792028626517622784").then((c) => {
-          c.permissionOverwrites.delete(usersRole.id);
-        });
-        interaction.reply({
-          content: "you can no longer see those channels",
-          ephemeral: true,
-        });
-      } else {
-        if (
-          interaction.member.roles.cache.find(
-            (role) => role.id === "726881878816063528"
-          )
-        ) {
-          interaction.guild.channels.fetch("828395755265720320").then((c) => {
-            c.permissionOverwrites.create({
-              name: usersRole.id,
-              ViewChannel: true,
-            });
-          });
-          interaction.guild.channels.fetch("792028626517622784").then((c) => {
-            c.permissionOverwrites.create({
-              name: usersRole.id,
-              ViewChannel: true,
-            });
-          });
+    const usersRole = await getOrCreateRole(interaction);
+    const channelName = interaction.options.getString("channel");
+    const channelId = gameChannels[channelName];
+
+    interaction.guild.channels.fetch(channelId).then((channel) => {
+      if (channel !== null) {
+        if (interaction.options.getBoolean("remove") === true) {
+          channel.permissionOverwrites.delete(usersRole.id);
           interaction.reply({
-            content: "you can now see those channels",
-            ephemeral: true,
+            content: "you can no longer see that channel",
+            flags: MessageFlags.Ephemeral,
           });
         } else {
+          channel.permissionOverwrites.create(usersRole.id, {
+            ViewChannel: true,
+          });
           interaction.reply({
-            content:
-              "only members of the <@&726881878816063528> role are allowed for the nsfw role",
-            ephemeral: true,
+            content: "you can now see that channel",
+            flags: MessageFlags.Ephemeral,
           });
         }
-      }
-    } else {
-      interaction.guild.channels
-        .fetch(gameChannels[interaction.options.getString("channel")])
-        .then((c) => {
-          if (c !== null) {
-            if (interaction.options.getBoolean("remove") === true) {
-              c.permissionOverwrites.delete(usersRole.id);
-              interaction.reply({
-                content: "you can no longer see that channel",
-                ephemeral: true,
-              });
-            } else {
-              c.permissionOverwrites.create({
-                name: usersRole.id,
-                ViewChannel: true,
-              });
-              interaction.reply({
-                content: "you can now see that channel",
-                ephemeral: true,
-              });
-            }
-          } else {
-            console.log("something went wrong; the fetched channel was null");
-            interaction.reply({
-              content: "Something went wrong; try again.",
-              ephemeral: true,
-            });
-          }
+      } else {
+        console.log("something went wrong; the fetched channel was null");
+        interaction.reply({
+          content: "Something went wrong; try again.",
+          flags: MessageFlags.Ephemeral,
         });
-    }
+      }
+    });
   } catch (e) {
     console.log(e);
     interaction.reply({
       content: "Something went wrong; try again.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }

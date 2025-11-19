@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import { getOrCreateRole } from "../index.js";
 
 export async function setCustomColorCommand(interaction) {
@@ -9,14 +10,14 @@ export async function setCustomColorCommand(interaction) {
     });
     interaction.reply({
       content: `Your color is now: ${interaction.options.getString("color")}`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } else {
     interaction.reply({
       content: `${interaction.options.getString(
         "color"
       )} is not a valid Hex Color. Use this if you need help: https://rgbacolorpicker.com/hex-color-picker`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
