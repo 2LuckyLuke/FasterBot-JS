@@ -134,9 +134,9 @@ client.on("messageCreate", async (msg) => {
 
   //upvotes in meme channel
   if (msg.channelId !== "663522966633709568") return;
-  linkCheck = msg.content.split(":");
+  const isLink = msg.content.split(":")[0].toLowerCase().includes("http");
 
-  if (msg.attachments.size > 0 || linkCheck[0].toLowerCase().includes("http")) {
+  if (msg.attachments.size > 0 || isLink) {
     msg.react("⬆️");
     msg.react("⬇️");
   }

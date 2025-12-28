@@ -1,3 +1,4 @@
+import { MessageFlags } from "discord.js";
 import { getOrCreateRole } from "../index.js";
 
 export async function setColorCommand(interaction, customColors) {
@@ -10,13 +11,13 @@ export async function setColorCommand(interaction, customColors) {
       content: `Your color is now: ${
         customColors[interaction.options.getString("color")]
       }`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (e) {
     console.log(e);
     interaction.reply({
       content: `Something went wrong; try again.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
