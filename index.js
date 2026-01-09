@@ -198,7 +198,7 @@ function voiceLeave(state) {
           channel.delete();
           textToVoiceID.delete(state.channel.id);
         } catch (e) {
-          console.log(e);
+          console.log("Caught Error: ", e);
         }
       });
   } else {
@@ -208,7 +208,7 @@ function voiceLeave(state) {
         try {
           channel.permissionOverwrites.delete(state.member.id);
         } catch (e) {
-          console.log(e);
+          console.log("Caught Error: ", e);
         }
       });
   }
@@ -224,7 +224,7 @@ function voiceJoin(state) {
             ViewChannel: true,
           });
         } catch (e) {
-          console.log(e);
+          console.log("Caught Error: ", e);
         }
       });
   } else {
@@ -245,7 +245,7 @@ function voiceMultipleJoin(state, members) {
               ViewChannel: true,
             });
           } catch (e) {
-            console.log(e);
+            console.log("Caught Error: ", e);
           }
         });
       });

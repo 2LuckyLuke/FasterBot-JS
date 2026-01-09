@@ -33,7 +33,7 @@ export async function setRoleCommand(interaction, gameChannels) {
       }
     });
   } catch (e) {
-    console.log(e);
+    console.log("Caught Error: ", e);
     interaction.reply({
       content: "Something went wrong; try again.",
       flags: MessageFlags.Ephemeral,

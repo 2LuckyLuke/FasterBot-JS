@@ -14,7 +14,7 @@ export async function setColorCommand(interaction, customColors) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (e) {
-    console.log(e);
+    console.log("Caught Error: ", e);
     interaction.reply({
       content: `Something went wrong; try again.`,
       flags: MessageFlags.Ephemeral,
