@@ -206,7 +206,15 @@ function voiceLeave(state) {
       .fetch(textToVoiceID.get(state.channel.id))
       .then((channel) => {
         try {
-          channel.permissionOverwrites.delete(state.member.id);
+          if (channel !== undefined && state.member.id !== undefined) {
+            channel.permissionOverwrites.delete(state.member.id);
+          } else {
+            console.log(
+              "Caught if Error: channel or member is undefined",
+              channel,
+              state.member
+            );
+          }
         } catch (e) {
           console.log("Caught Error: ", e);
         }
