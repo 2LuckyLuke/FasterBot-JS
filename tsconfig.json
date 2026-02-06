@@ -1,0 +1,11 @@
+ {
+    "compilerOptions": {
+        "outDir": "./build",
+        "allowJs": true,
+        "target": "es2022",
+        //"noImplicitAny": true,
+        "module": "nodenext",
+        "moduleResolution": "nodenext"
+    },
+    "include": ["./src/**/*"]
+ }

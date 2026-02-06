@@ -5,7 +5,12 @@ import {
   PermissionFlagsBits,
   ChannelType,
   OverwriteType,
-  ActivityType,
+  Partials,
+  VoiceState,
+  Collection,
+  GuildMember,
+  OverwriteResolvable,
+  Role,
 } from "discord.js";
 
 import fs from "fs";
@@ -19,18 +24,20 @@ import {
   setRoleCommand,
 } from "./commands/index.js";
 
-const config = JSON.parse(fs.readFileSync("./data/config.json", "utf-8"));
-const colors = JSON.parse(fs.readFileSync("./data/colors.json", "utf-8"));
-const channels = JSON.parse(fs.readFileSync("./data/channels.json", "utf-8"));
+const config = JSON.parse(fs.readFileSync("./src/data/config.json", "utf-8"));
+const colors = JSON.parse(fs.readFileSync("./src/data/colors.json", "utf-8"));
+const channels = JSON.parse(
+  fs.readFileSync("./src/data/channels.json", "utf-8")
+);
 
 const { token, tSuckedServerID } = config;
 const { customColors } = colors;
 const { categories, gameChannels } = channels;
 
 let textToVoiceID = new Map();
-let everyoneID;
+let everyoneID: Role;
 const client = new Client({
-  partials: ["MESSAGE", "CHANNEL", "REACTION"],
+  partials: [Partials.Message, Partials.Channel, Partials.Reaction],
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
@@ -45,12 +52,8 @@ const client = new Client({
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildWebhooks,
   ],
-  restTimeOffset: 0,
 });
 
-client.once(Events.ClientReady, (readyClient) => {
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-});
 
 client
   .login(token)
@@ -59,8 +62,8 @@ client
     console.log("Error logging into Discord: " + err);
   });
 
-client.on("ready", () => {
-  client.user.setActivity("you", { type: ActivityType.Watching });
+client.once(Events.ClientReady, (readyClient) => {
+  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
   client.guilds.fetch(tSuckedServerID).then((guild) => {
     everyoneID = guild.roles.everyone;
     //remove existing channels in category
@@ -189,8 +192,8 @@ client.on("voiceStateUpdate", (oldState, newState) => {
   }
 });
 
-function voiceLeave(state) {
-  if (!state.channel.members.size > 0) {
+function voiceLeave(state: VoiceState) {
+  if (state.channel.members.size < 0) {
     state.guild.channels
       .fetch(textToVoiceID.get(state.channel.id))
       .then((channel) => {
@@ -206,7 +209,11 @@ function voiceLeave(state) {
       .fetch(textToVoiceID.get(state.channel.id))
       .then((channel) => {
         try {
-          if (channel !== undefined && state.member.id !== undefined) {
+          if (
+            channel !== undefined &&
+            channel.type === ChannelType.GuildVoice &&
+            state.member.id !== undefined
+          ) {
             channel.permissionOverwrites.delete(state.member.id);
           } else {
             console.log(
@@ -242,16 +249,25 @@ function voiceJoin(state) {
   }
 }
 
-function voiceMultipleJoin(state, members) {
+function voiceMultipleJoin(
+  state: VoiceState,
+  members: Collection<string, GuildMember>
+) {
   if (textToVoiceID.has(state.channel.id)) {
     state.guild.channels
       .fetch(textToVoiceID.get(state.channel.id))
       .then((textChannel) => {
         members.forEach((member) => {
           try {
-            textChannel.permissionOverwrites.create(member.id, {
-              ViewChannel: true,
-            });
+            if (
+              textChannel !== undefined &&
+              textChannel.type === ChannelType.GuildText &&
+              state.member.id !== undefined
+            ) {
+              textChannel.permissionOverwrites.create(member.id, {
+                ViewChannel: true,
+              });
+            }
           } catch (e) {
             console.log("Caught Error: ", e);
           }
@@ -260,7 +276,7 @@ function voiceMultipleJoin(state, members) {
   } else {
     let channelName = state.channel.name;
     channelName = channelName.substring(channelName.indexOf(" "));
-    let overwrites = [
+    let overwrites: OverwriteResolvable[] = [
       {
         type: OverwriteType.Role,
         id: everyoneID,
