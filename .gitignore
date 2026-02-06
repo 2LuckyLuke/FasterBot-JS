@@ -2,6 +2,6 @@ config.json
 node_modules
 node_modules/*
 Log.txt
-FasterBot.log
+fasterBot.log
 build
 build/*
