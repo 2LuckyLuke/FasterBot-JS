@@ -1,1 +1,3 @@
-screen -L -Logfile fasterBot.log -dmS FasterBot tsc && node build/index.js
+#! /bin/bash
+tsc
+screen -L -Logfile fasterBot.log -dmS FasterBot node build/index.js
