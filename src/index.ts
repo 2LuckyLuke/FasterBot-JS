@@ -11,6 +11,9 @@ import {
   GuildMember,
   OverwriteResolvable,
   Role,
+  GuildTextBasedChannel,
+  GuildBasedChannel,
+  TextChannel,
 } from "discord.js";
 
 import fs from "fs";
@@ -34,7 +37,7 @@ const { token, tSuckedServerID } = config;
 const { customColors } = colors;
 const { categories, gameChannels } = channels;
 
-let textToVoiceID = new Map();
+let textToVoiceID = new Map<string, string>();
 let everyoneID: Role;
 const client = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction],
@@ -211,7 +214,7 @@ function voiceLeave(state: VoiceState) {
         try {
           if (
             channel !== undefined &&
-            channel.type === ChannelType.GuildVoice &&
+            channel.type === ChannelType.GuildText &&
             state.member.id !== undefined
           ) {
             channel.permissionOverwrites.delete(state.member.id);
@@ -229,15 +232,21 @@ function voiceLeave(state: VoiceState) {
   }
 }
 
-function voiceJoin(state) {
+function voiceJoin(state: VoiceState) {
   if (textToVoiceID.has(state.channel.id)) {
     state.guild.channels
       .fetch(textToVoiceID.get(state.channel.id))
-      .then((textChannel) => {
+      .then((textChannel: TextChannel) => {
         try {
-          textChannel.permissionOverwrites.create(state.member.id, {
-            ViewChannel: true,
-          });
+          if (
+            textChannel !== undefined &&
+            textChannel.type === ChannelType.GuildText &&
+            state.member.id !== undefined
+          ) {
+            textChannel.permissionOverwrites.create(state.member.id, {
+              ViewChannel: true,
+            });
+          }
         } catch (e) {
           console.log("Caught Error: ", e);
         }
