@@ -1,19 +1,10 @@
 import {
-  Events,
-  Client,
-  GatewayIntentBits,
-  PermissionFlagsBits,
   ChannelType,
-  OverwriteType,
+  Client,
+  Events,
+  GatewayIntentBits,
   Partials,
-  VoiceState,
-  Collection,
-  GuildMember,
-  OverwriteResolvable,
-  Role,
-  GuildTextBasedChannel,
-  GuildBasedChannel,
-  TextChannel,
+  Role
 } from "discord.js";
 
 import fs from "fs";
@@ -26,6 +17,9 @@ import {
   setCustomColorCommand,
   setRoleCommand,
 } from "./commands/index.js";
+import { voiceChannelJoin } from "./commands/voice/channelJoin.js";
+import { voiceChannelLeave } from "./commands/voice/channelLeave.js";
+import { voiceMultipleJoin } from "./commands/voice/channelMultipleJoin.js";
 
 const config = JSON.parse(fs.readFileSync("./src/data/config.json", "utf-8"));
 const colors = JSON.parse(fs.readFileSync("./src/data/colors.json", "utf-8"));
@@ -37,8 +31,8 @@ const { token, tSuckedServerID } = config;
 const { customColors } = colors;
 const { categories, gameChannels } = channels;
 
-let textToVoiceID = new Map<string, string>();
-let everyoneID: Role;
+export const textToVoiceId = new Map<string, string>();
+export let everyoneRole: Role;
 const client = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction],
   intents: [
@@ -68,7 +62,7 @@ client
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
   client.guilds.fetch(tSuckedServerID).then((guild) => {
-    everyoneID = guild.roles.everyone;
+    everyoneRole = guild.roles.everyone;
     //remove existing channels in category
     guild.channels.fetch(categories.voice).then((category) => {
       if (category.type !== ChannelType.GuildCategory) {
@@ -179,159 +173,19 @@ export function getEmojisFromString(textInput) {
   return emojis ? emojis : [];
 }
 
-// logic for text and role creation
+// logic for text channel and role creation
 
 client.on("voiceStateUpdate", (oldState, newState) => {
   if (newState.channelId === null) {
     //left
-    voiceLeave(oldState);
+    voiceChannelLeave(oldState)
   } else if (oldState.channelId === null) {
     // joined
-    voiceJoin(newState);
+    voiceChannelJoin(newState)
   } else if (newState.channelId !== oldState.channelId) {
     // moved
-    voiceLeave(oldState);
-    voiceJoin(newState);
+    voiceChannelLeave(oldState)
+    voiceChannelJoin(newState)
   }
 });
 
-function voiceLeave(state: VoiceState) {
-  if (state.channel.members.size < 0) {
-    state.guild.channels
-      .fetch(textToVoiceID.get(state.channel.id))
-      .then((channel) => {
-        try {
-          channel.delete();
-          textToVoiceID.delete(state.channel.id);
-        } catch (e) {
-          console.log("Caught Error: ", e);
-        }
-      });
-  } else {
-    state.guild.channels
-      .fetch(textToVoiceID.get(state.channel.id))
-      .then((channel) => {
-        try {
-          if (
-            channel !== undefined &&
-            channel.type === ChannelType.GuildText &&
-            state.member.id !== undefined
-          ) {
-            channel.permissionOverwrites.delete(state.member.id);
-          } else {
-            console.log(
-              "Caught if Error: channel or member is undefined",
-              channel,
-              state.member
-            );
-          }
-        } catch (e) {
-          console.log("Caught Error: ", e);
-        }
-      });
-  }
-}
-
-function voiceJoin(state: VoiceState) {
-  if (textToVoiceID.has(state.channel.id)) {
-    state.guild.channels
-      .fetch(textToVoiceID.get(state.channel.id))
-      .then((textChannel: TextChannel) => {
-        try {
-          if (
-            textChannel !== undefined &&
-            textChannel.type === ChannelType.GuildText &&
-            state.member.id !== undefined
-          ) {
-            textChannel.permissionOverwrites.create(state.member.id, {
-              ViewChannel: true,
-            });
-          }
-        } catch (e) {
-          console.log("Caught Error: ", e);
-        }
-      });
-  } else {
-    let channelName = state.channel.name;
-    channelName = channelName.substring(channelName.indexOf(" "));
-    createTextChannel(channelName, state);
-  }
-}
-
-function voiceMultipleJoin(
-  state: VoiceState,
-  members: Collection<string, GuildMember>
-) {
-  if (textToVoiceID.has(state.channel.id)) {
-    state.guild.channels
-      .fetch(textToVoiceID.get(state.channel.id))
-      .then((textChannel) => {
-        members.forEach((member) => {
-          try {
-            if (
-              textChannel !== undefined &&
-              textChannel.type === ChannelType.GuildText &&
-              state.member.id !== undefined
-            ) {
-              textChannel.permissionOverwrites.create(member.id, {
-                ViewChannel: true,
-              });
-            }
-          } catch (e) {
-            console.log("Caught Error: ", e);
-          }
-        });
-      });
-  } else {
-    let channelName = state.channel.name;
-    channelName = channelName.substring(channelName.indexOf(" "));
-    let overwrites: OverwriteResolvable[] = [
-      {
-        type: OverwriteType.Role,
-        id: everyoneID,
-        deny: [PermissionFlagsBits.ViewChannel],
-      },
-    ];
-    members.forEach((member) => {
-      overwrites.push({
-        type: OverwriteType.Member,
-        id: member.id,
-        allow: [PermissionFlagsBits.ViewChannel],
-      });
-    });
-    state.guild.channels
-      .create({
-        name: channelName,
-        type: ChannelType.GuildText,
-        parent: state.channel.parent,
-        permissionOverwrites: overwrites,
-      })
-      .then((textChannel) => {
-        textToVoiceID.set(state.channel.id, textChannel.id);
-      });
-  }
-}
-
-function createTextChannel(channelName, state) {
-  state.guild.channels
-    .create({
-      name: channelName,
-      type: ChannelType.GuildText,
-      parent: state.channel.parent,
-      permissionOverwrites: [
-        {
-          type: OverwriteType.Role,
-          id: everyoneID,
-          deny: [PermissionFlagsBits.ViewChannel],
-        },
-        {
-          type: OverwriteType.Member,
-          id: state.member.id,
-          allow: [PermissionFlagsBits.ViewChannel],
-        },
-      ],
-    })
-    .then((textChannel) => {
-      textToVoiceID.set(state.channel.id, textChannel.id);
-    });
-}
