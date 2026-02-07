@@ -8,7 +8,7 @@ export async function voiceChannelLeave(oldState: VoiceState) {
     const textChannelId = textToVoiceId.get(leftVoiceChannel.id)
     const textChannel = await oldState.guild.channels.fetch(textChannelId)
 
-    if (oldVoiceMembers.size < 0) { //last member left voice channel
+    if (oldVoiceMembers.size <= 0) { //last member left voice channel
         textChannel.delete();
         textToVoiceId.delete(textChannelId)
     } else { //still member(s) in the voice channel
