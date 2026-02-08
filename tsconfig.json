@@ -4,6 +4,7 @@
         "allowJs": true,
         "target": "es2022",
         //"noImplicitAny": true,
+        //"strict": true,
         "module": "nodenext",
         "moduleResolution": "nodenext"
     },

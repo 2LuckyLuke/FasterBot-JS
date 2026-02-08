@@ -2,6 +2,9 @@ import { ChannelType, Collection, GuildMember, OverwriteResolvable, OverwriteTyp
 import { everyoneRole, textToVoiceId } from "../../../index.js";
 
 export async function createTextChannel(channelName: string, state: VoiceState, members: Collection<string, GuildMember>) {
+  const joinedVoiceChannel = state.channel
+  if (joinedVoiceChannel === null) { return }
+
   const overWrites: OverwriteResolvable[] = [
     {
       type: OverwriteType.Role,
@@ -20,10 +23,10 @@ export async function createTextChannel(channelName: string, state: VoiceState, 
     .create({
       name: channelName,
       type: ChannelType.GuildText,
-      parent: state.channel.parent,
+      parent: joinedVoiceChannel.parent,
       permissionOverwrites: overWrites,
     })
     .then((textChannel) => {
-      textToVoiceId.set(state.channel.id, textChannel.id);
+      textToVoiceId.set(joinedVoiceChannel.id, textChannel.id);
     });
 }

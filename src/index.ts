@@ -147,7 +147,7 @@ export function getOrCreateRole(interaction) {
   //if the user has no own role: create it
   if (
     !interaction.member.roles.cache.some(
-      (r) => r.name === interaction.user.username
+      (role) => role.name === interaction.user.username
     )
   ) {
     return interaction.guild.roles
