@@ -1,35 +1,28 @@
+import { ChatInputCommandInteraction } from "discord.js";
 import { getEmojisFromString } from "../index.js";
 
-export async function pollCommand(interaction) {
-  let textToSend = interaction.options.getString("text");
-  let role = interaction.options.getRole("role");
-  let message;
-  if (role !== null) {
-    textToSend += ` ${role}`;
+export async function pollCommand(interaction: ChatInputCommandInteraction) {
+  const textToSend = interaction.options.getString("text") ?? '';
+  const role = interaction.options.getRole("role");
+  const reply = await interaction.reply({
+    allowedMentions: { roles: [role !== null ? role.id : ''] },
+    content: role !== null ? `${textToSend} <@&${role.id}>` : textToSend,
+  })
+  
+  const sentMessage = await reply.fetch()
 
-    message = await interaction.reply({
-      allowedMentions: { roles: [role.id] },
-      content: textToSend,
-      fetchReply: true,
-    });
-  } else {
-    message = await interaction.reply({
-      content: textToSend,
-      fetchReply: true,
-    });
-  }
-  let reactions = interaction.options.getString("reactions");
+  const reactions = interaction.options.getString("reactions");
   if (reactions !== null) {
-    let emojis = getEmojisFromString(reactions);
-    for (let emoji of emojis) {
+    const emojis = getEmojisFromString(reactions);
+    for (const emoji of emojis) {
       try {
-        await message.react(emoji);
+        await sentMessage.react(emoji);
       } catch (error) {
         // Private emoji used
       }
     }
   } else {
-    message.react("⬆️");
-    message.react("⬇️");
+    sentMessage.react("⬆️");
+    sentMessage.react("⬇️");
   }
 }

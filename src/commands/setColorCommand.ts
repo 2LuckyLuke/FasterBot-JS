@@ -1,7 +1,8 @@
-import { MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import { getOrCreateRole } from "../index.js";
+import { ColorsJsonType } from "../data/types.js";
 
-export async function setColorCommand(interaction, customColors) {
+export async function setColorCommand(interaction: ChatInputCommandInteraction, customColors: ColorsJsonType['customColors']) {
   try {
     let usersRole = await getOrCreateRole(interaction);
     usersRole.edit({

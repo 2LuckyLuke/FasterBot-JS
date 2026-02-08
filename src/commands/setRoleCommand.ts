@@ -1,14 +1,20 @@
-import { MessageFlags } from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import { getOrCreateRole } from "../index.js";
+import { ChannelsJsonType } from "../data/types.js";
 
-export async function setRoleCommand(interaction, gameChannels) {
+export async function setRoleCommand(interaction: ChatInputCommandInteraction, gameChannels: ChannelsJsonType['gameChannels']) {
   try {
     const usersRole = await getOrCreateRole(interaction);
     const channelName = interaction.options.getString("channel");
     const channelId = gameChannels[channelName];
 
     interaction.guild.channels.fetch(channelId).then((channel) => {
-      if (channel !== null) {
+      if (channel === null || channel.type !== ChannelType.GuildText) {
+        interaction.reply({
+          content: "Something went wrong; try again.",
+          flags: MessageFlags.Ephemeral,
+        });
+      } else {
         if (interaction.options.getBoolean("remove") === true) {
           channel.permissionOverwrites.delete(usersRole.id);
           interaction.reply({
@@ -24,12 +30,6 @@ export async function setRoleCommand(interaction, gameChannels) {
             flags: MessageFlags.Ephemeral,
           });
         }
-      } else {
-        console.log("something went wrong; the fetched channel was null");
-        interaction.reply({
-          content: "Something went wrong; try again.",
-          flags: MessageFlags.Ephemeral,
-        });
       }
     });
   } catch (e) {

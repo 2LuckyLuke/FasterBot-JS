@@ -1,6 +1,8 @@
 import {
   ChannelType,
+  ChatInputCommandInteraction,
   Client,
+  ColorResolvable,
   Events,
   GatewayIntentBits,
   Partials,
@@ -20,14 +22,15 @@ import {
 import { voiceChannelJoin } from "./commands/voice/channelJoin.js";
 import { voiceChannelLeave } from "./commands/voice/channelLeave.js";
 import { voiceMultipleJoin } from "./commands/voice/channelMultipleJoin.js";
+import { ChannelsJsonType, ColorsJsonType, ConfigJsonType } from "./data/types.js";
 
-const config = JSON.parse(fs.readFileSync("./src/data/config.json", "utf-8"));
-const colors = JSON.parse(fs.readFileSync("./src/data/colors.json", "utf-8"));
-const channels = JSON.parse(
+const config: ConfigJsonType = JSON.parse(fs.readFileSync("./src/data/config.json", "utf-8"));
+const colors: ColorsJsonType = JSON.parse(fs.readFileSync("./src/data/colors.json", "utf-8"));
+const channels: ChannelsJsonType = JSON.parse(
   fs.readFileSync("./src/data/channels.json", "utf-8")
 );
 
-const { token, tSuckedServerID } = config;
+const { token, tSuckedServerId } = config;
 const { customColors } = colors;
 const { categories, gameChannels } = channels;
 
@@ -54,18 +57,18 @@ const client = new Client({
 
 client
   .login(token)
-  .then(() => console.log(`Logged in successfully via: ${client.user.tag}`))
+  .then(() => console.log(`Logged in successfully via: ${client.user?.tag}`))
   .catch((err) => {
     console.log("Error logging into Discord: " + err);
   });
 
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-  client.guilds.fetch(tSuckedServerID).then((guild) => {
+  client.guilds.fetch(tSuckedServerId).then((guild) => {
     everyoneRole = guild.roles.everyone;
     //remove existing channels in category
     guild.channels.fetch(categories.voice).then((category) => {
-      if (category.type !== ChannelType.GuildCategory) {
+      if (category === null || category.type !== ChannelType.GuildCategory) {
         return;
       }
       category.children.cache.each((channel) => {
@@ -77,7 +80,10 @@ client.once(Events.ClientReady, (readyClient) => {
           channel.type === ChannelType.GuildVoice &&
           channel.members.size > 0
         ) {
-          voiceMultipleJoin(channel.members.at(0).voice, channel.members);
+          const firstMember = channel.members.first()
+          if (firstMember !== undefined) {
+            voiceMultipleJoin(firstMember?.voice, channel.members);
+          }
         }
       });
     });
@@ -87,7 +93,7 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isCommand()) return;
+  if (!interaction.isChatInputCommand()) return;
 
   //ping command
   if (interaction.commandName === "ping") {
@@ -143,30 +149,35 @@ client.on("messageCreate", async (msg) => {
   }
 });
 
-export function getOrCreateRole(interaction) {
+export function getOrCreateRole(interaction: ChatInputCommandInteraction) {
+  const member = interaction.member
+  const guild = interaction.guild
+  if (member === null || guild === null) return
   //if the user has no own role: create it
+  const roles = member.roles
+  if (!('cache' in roles) || !('add' in roles)) { return }
   if (
-    !interaction.member.roles.cache.some(
+    !roles.cache.some(
       (role) => role.name === interaction.user.username
     )
   ) {
-    return interaction.guild.roles
+    return guild.roles
       .create({
         name: interaction.user.username,
-        color: customColors.user,
+        color: customColors.user as ColorResolvable,
       })
       .then((role) => {
-        interaction.member.roles.add(role);
+        roles.add(role);
         return role;
       });
   } else {
-    return interaction.member.roles.cache.find(
+    return roles.cache.find(
       (role) => role.name === interaction.user.username
     );
   }
 }
 
-export function getEmojisFromString(textInput) {
+export function getEmojisFromString(textInput: string) {
   // This regex matches most Unicode emojis, but not numbers or Discord custom emoji syntax
   const emojiRegex = /([\p{Emoji_Presentation}\u200d\ufe0f]+)/gu;
   const emojis = textInput.match(emojiRegex);

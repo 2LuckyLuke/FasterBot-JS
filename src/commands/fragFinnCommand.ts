@@ -1,6 +1,6 @@
-import { MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 
-export function fragFinnCommand(interaction) {
+export function fragFinnCommand(interaction: ChatInputCommandInteraction) {
   interaction.reply({
     content: "Our search engine has been informed.",
     flags: MessageFlags.Ephemeral,

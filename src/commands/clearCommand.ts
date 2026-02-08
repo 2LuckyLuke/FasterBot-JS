@@ -1,22 +1,24 @@
-import { MessageFlags } from "discord.js";
+import { ChannelType } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
 
-export function clearCommand(interaction) {
-  let messageNumber = interaction.options.getInteger("messages");
+export async function clearCommand(interaction: ChatInputCommandInteraction) {
+  const messageNumber = interaction.options.getInteger("messages") ?? 0;
   try {
     if (messageNumber > 100) {
       throw "To many messages; Max amount is `100`";
     }
 
-    interaction.channel.messages
+    const channelToClear = await interaction.guild?.channels.fetch(interaction.channelId)
+    if(channelToClear === null || channelToClear === undefined || channelToClear.type !== ChannelType.GuildText) {
+      return
+    }
+
+    channelToClear.messages
       .fetch({ limit: messageNumber })
       .then((messages) => {
-        interaction.channel.bulkDelete(messages);
-        messageNumber = 0;
-        for (let [key, value] of messages) {
-          messageNumber++;
-        }
+        channelToClear.bulkDelete(messages);
         interaction.reply({
-          content: `Deleted \`${messageNumber}\` messages.`,
+          content: `Deleted \`${messages.size}\` messages.`,
           flags: MessageFlags.Ephemeral,
         });
       });
