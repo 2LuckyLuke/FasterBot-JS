@@ -7,6 +7,8 @@ export type ConfigJsonType = {
     tSuckedServerId: string;
 }
 
+export type CustomColorsUnionString = 'user' | 'navy' | 'blue' | 'aqua' | 'cyan' | 'darkblue' | 'lavender' | 'purple' | 'darkpurple' | 'magenta' | 'pink' | 'red' | 'darkred' | 'wine' | 'cherry' | 'orange' | 'yellow' | 'maroon' | 'olive' | 'green' | 'jade' | 'lime' | 'black' | 'gray' | 'white';
+
 export type ColorsJsonType = {
     customColors: {
         user: string;
@@ -36,6 +38,8 @@ export type ColorsJsonType = {
         white: string;
     }
 }
+
+export type GameChannelsUnionString = 'mc' | 'ow' | 'csgo' | 'pubg' | 'lol' | 'ttt' | 'val' | 'terra' | 'browser' | 'genshin' | 'poke' | 'mcEvent' | 'film';
 
 export type ChannelsJsonType = {
     gameChannels: {

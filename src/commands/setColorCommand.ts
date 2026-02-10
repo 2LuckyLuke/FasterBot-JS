@@ -1,24 +1,16 @@
-import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, ColorResolvable, MessageFlags } from "discord.js";
 import { getOrCreateRole } from "../index.js";
-import { ColorsJsonType } from "../data/types.js";
+import { ColorsJsonType, CustomColorsUnionString } from "../data/types.js";
 
 export async function setColorCommand(interaction: ChatInputCommandInteraction, customColors: ColorsJsonType['customColors']) {
-  try {
-    let usersRole = await getOrCreateRole(interaction);
+    const usersRole = await getOrCreateRole(interaction);
+    const color: CustomColorsUnionString = interaction.options.getString("color") as CustomColorsUnionString;
+    if(usersRole === undefined || color === null) return
     usersRole.edit({
-      color: customColors[interaction.options.getString("color")],
+      color: customColors[color] as ColorResolvable,
     });
     interaction.reply({
-      content: `Your color is now: ${
-        customColors[interaction.options.getString("color")]
-      }`,
+      content: `Your color is now: ${ customColors[color] }`,
       flags: MessageFlags.Ephemeral,
     });
-  } catch (e) {
-    console.log("Caught Error: ", e);
-    interaction.reply({
-      content: `Something went wrong; try again.`,
-      flags: MessageFlags.Ephemeral,
-    });
-  }
 }

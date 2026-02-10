@@ -1,28 +1,25 @@
-import { ChannelType, ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChannelsJsonType, GameChannelsUnionString } from "../data/types.js";
 import { getOrCreateRole } from "../index.js";
-import { ChannelsJsonType } from "../data/types.js";
 
 export async function setRoleCommand(interaction: ChatInputCommandInteraction, gameChannels: ChannelsJsonType['gameChannels']) {
-  try {
     const usersRole = await getOrCreateRole(interaction);
-    const channelName = interaction.options.getString("channel");
+    const channelName: GameChannelsUnionString = interaction.options.getString("channel") as GameChannelsUnionString;
     const channelId = gameChannels[channelName];
-
-    interaction.guild.channels.fetch(channelId).then((channel) => {
-      if (channel === null || channel.type !== ChannelType.GuildText) {
-        interaction.reply({
-          content: "Something went wrong; try again.",
-          flags: MessageFlags.Ephemeral,
-        });
-      } else {
-        if (interaction.options.getBoolean("remove") === true) {
-          channel.permissionOverwrites.delete(usersRole.id);
+    
+    const guild = interaction.guild
+    if (guild === null || usersRole === undefined) return
+    const textChannel= await guild.channels.fetch(channelId);
+    if (textChannel === null || textChannel.isTextBased()) return
+    const shouldRemoveRights = interaction.options.getBoolean("remove");
+        if (shouldRemoveRights) {
+          textChannel.permissionOverwrites.delete(usersRole.id);
           interaction.reply({
             content: "you can no longer see that channel",
             flags: MessageFlags.Ephemeral,
           });
         } else {
-          channel.permissionOverwrites.create(usersRole.id, {
+          textChannel.permissionOverwrites.create(usersRole.id, {
             ViewChannel: true,
           });
           interaction.reply({
@@ -30,13 +27,4 @@ export async function setRoleCommand(interaction: ChatInputCommandInteraction, g
             flags: MessageFlags.Ephemeral,
           });
         }
-      }
-    });
-  } catch (e) {
-    console.log("Caught Error: ", e);
-    interaction.reply({
-      content: "Something went wrong; try again.",
-      flags: MessageFlags.Ephemeral,
-    });
-  }
 }

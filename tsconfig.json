@@ -1,12 +1,12 @@
- {
-    "compilerOptions": {
-        "outDir": "./build",
-        "allowJs": true,
-        "target": "es2022",
-        "noImplicitAny": true,
-        "strict": true,
-        "module": "nodenext",
-        "moduleResolution": "nodenext"
-    },
-    "include": ["./src/**/*"]
- }
+{
+  "compilerOptions": {
+    "outDir": "./build",
+    "allowJs": true,
+    "target": "es2022",
+    "noImplicitAny": true,
+    "strict": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
+  },
+  "include": ["./src/**/*"]
+}
