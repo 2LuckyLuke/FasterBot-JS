@@ -16,7 +16,7 @@ export async function voiceChannelLeave(oldState: VoiceState) {
 
     if (oldVoiceMembers.size <= 0) { //last member left voice channel
         textChannel.delete();
-        textToVoiceId.delete(textChannelId)
+        textToVoiceId.delete(leftVoiceChannel.id)
     } else { //still member(s) in the voice channel
         const leftMemberId = oldState.member.id
         updateTextChannelVisibility(leftMemberId, 'hidden', textChannel)
