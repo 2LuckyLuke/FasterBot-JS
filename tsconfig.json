@@ -6,7 +6,8 @@
     "noImplicitAny": true,
     "strict": true,
     "module": "nodenext",
-    "moduleResolution": "nodenext"
+    "moduleResolution": "nodenext",
+    "rootDir": "src"
   },
   "include": ["./src/**/*"]
 }
