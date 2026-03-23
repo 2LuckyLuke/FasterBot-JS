@@ -27,9 +27,9 @@ import { ChannelsJsonType, ColorsJsonType, ConfigJsonType } from "./data/types.j
 const token = process.env.DISCORD_BOT_TOKEN ?? '';
 const tSuckedServerId = process.env.DISCORD_BOT_ACTIVE_SERVER ?? '';
 
-const colors: ColorsJsonType = JSON.parse(fs.readFileSync("./src/data/colors.json", "utf-8"));
+const colors: ColorsJsonType = JSON.parse(fs.readFileSync("data/colors.json", "utf-8"));
 const channels: ChannelsJsonType = JSON.parse(
-  fs.readFileSync("./src/data/channels.json", "utf-8")
+  fs.readFileSync("data/channels.json", "utf-8")
 );
 const { customColors } = colors;
 const { categories, gameChannels } = channels;
