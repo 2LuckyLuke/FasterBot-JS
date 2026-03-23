@@ -8,5 +8,9 @@
     "discord.js": "^14.25.1",
     "yarn": "^1.22.22 "
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js"
+  }
 }
