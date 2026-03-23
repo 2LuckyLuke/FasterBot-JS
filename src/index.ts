@@ -23,13 +23,16 @@ import { voiceChannelJoin } from "./commands/voice/channelJoin.js";
 import { voiceChannelLeave } from "./commands/voice/channelLeave.js";
 import { voiceMultipleJoin } from "./commands/voice/channelMultipleJoin.js";
 import { ChannelsJsonType, ColorsJsonType, ConfigJsonType } from "./data/types.js";
+import { dirname, join } from "path";
+import { fileURLToPath } from "url";
 
 const token = process.env.DISCORD_BOT_TOKEN ?? '';
 const tSuckedServerId = process.env.DISCORD_BOT_ACTIVE_SERVER ?? '';
 
-const colors: ColorsJsonType = JSON.parse(fs.readFileSync("data/colors.json", "utf-8"));
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const colors: ColorsJsonType = JSON.parse(fs.readFileSync(join(__dirname, "data/colors.json"), "utf-8"));
 const channels: ChannelsJsonType = JSON.parse(
-  fs.readFileSync("data/channels.json", "utf-8")
+  fs.readFileSync(join(__dirname, "data/channels.json"), "utf-8")
 );
 const { customColors } = colors;
 const { categories, gameChannels } = channels;
