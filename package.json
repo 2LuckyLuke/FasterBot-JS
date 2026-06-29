@@ -8,6 +8,10 @@
     "discord.js": "^14.25.1",
     "yarn": "^1.22.22 "
   },
+  "resolutions": {
+    "undici": "^6.23.0",
+    "ws": "^8.20.1"
+  },
   "type": "module",
   "scripts": {
     "build": "tsc",
