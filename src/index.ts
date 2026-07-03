@@ -5,8 +5,7 @@ import {
   ColorResolvable,
   Events,
   GatewayIntentBits,
-  Partials,
-  Role
+  Partials
 } from "discord.js";
 
 import fs from "fs";
@@ -38,7 +37,6 @@ const { customColors } = colors;
 const { categories, gameChannels } = channels;
 
 export const textToVoiceId = new Map<string, string>();
-export let everyoneRole: Role;
 const client = new Client({
   partials: [Partials.Message, Partials.Channel, Partials.Reaction],
   intents: [
@@ -68,7 +66,6 @@ client
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
   client.guilds.fetch(tSuckedServerId).then((guild) => {
-    everyoneRole = guild.roles.everyone;
     //remove existing channels in category
     guild.channels.fetch(categories.voice).then((category) => {
       if (category === null || category.type !== ChannelType.GuildCategory) {

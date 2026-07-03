@@ -1,4 +1,4 @@
-import { ChatInputCommandInteraction, MessageFlags } from "discord.js";
+import { ChannelType, ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import { ChannelsJsonType, GameChannelsUnionString } from "../data/types.js";
 import { getOrCreateRole } from "../index.js";
 
@@ -10,7 +10,7 @@ export async function setRoleCommand(interaction: ChatInputCommandInteraction, g
     const guild = interaction.guild
     if (guild === null || usersRole === undefined) return
     const textChannel= await guild.channels.fetch(channelId);
-    if (textChannel === null || textChannel.isTextBased()) return
+    if (textChannel === null || textChannel.type !== ChannelType.GuildText) return
     const shouldRemoveRights = interaction.options.getBoolean("remove");
         if (shouldRemoveRights) {
           textChannel.permissionOverwrites.delete(usersRole.id);

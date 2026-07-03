@@ -1,5 +1,5 @@
 import { ChannelType, Collection, GuildMember, OverwriteResolvable, OverwriteType, PermissionFlagsBits, VoiceState } from "discord.js";
-import { everyoneRole, textToVoiceId } from "../../../index.js";
+import { textToVoiceId } from "../../../index.js";
 
 export async function createTextChannel(channelName: string, state: VoiceState, members: Collection<string, GuildMember>) {
   const joinedVoiceChannel = state.channel
@@ -8,7 +8,7 @@ export async function createTextChannel(channelName: string, state: VoiceState, 
   const overWrites: OverwriteResolvable[] = [
     {
       type: OverwriteType.Role,
-      id: everyoneRole.id,
+      id: state.guild.roles.everyone.id,
       deny: [PermissionFlagsBits.ViewChannel]
     }
   ]

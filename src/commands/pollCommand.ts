@@ -4,10 +4,11 @@ import { getEmojisFromString } from "../index.js";
 export async function pollCommand(interaction: ChatInputCommandInteraction) {
   const textToSend = interaction.options.getString("text") ?? '';
   const role = interaction.options.getRole("role");
-  const reply = await interaction.reply({
-    allowedMentions: { roles: [role !== null ? role.id : ''] },
-    content: role !== null ? `${textToSend} <@&${role.id}>` : textToSend,
-  })
+  const reply = await interaction.reply(
+    role !== null
+      ? { content: `${textToSend} <@&${role.id}>`, allowedMentions: { roles: [role.id] } }
+      : { content: textToSend }
+  )
   
   const sentMessage = await reply.fetch()
 
