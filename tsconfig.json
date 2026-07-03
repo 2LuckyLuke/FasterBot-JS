@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "outDir": "./build",
-    "allowJs": true,
     "target": "es2022",
-    "noImplicitAny": true,
     "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "rootDir": "src"

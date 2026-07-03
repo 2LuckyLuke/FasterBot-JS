@@ -1,7 +1,5 @@
-config.json
 node_modules
-node_modules/*
-Log.txt
-fasterBot.log
 build
-build/*
+.idea
+*.log
+Log.txt
