@@ -16,7 +16,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "start": "node build/index.js"
+    "start": "node build/index.js",
+    "deploy": "node build/deploy-commands.js"
   },
   "devDependencies": {
     "typescript": "^6.0.2"
