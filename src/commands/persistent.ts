@@ -55,7 +55,9 @@ export const persistent: Command = {
         voiceChannel.type === ChannelType.GuildVoice &&
         voiceChannel.members.size === 0
       ) {
-        await interaction.channel.delete();
+        await interaction.channel
+          .delete()
+          .catch((err: unknown) => console.error("Error deleting channel after /persistent:", err));
         forgetVoiceChannel(voiceChannelId);
       }
     }

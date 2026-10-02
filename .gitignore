@@ -3,4 +3,4 @@ build
 .idea
 *.log
 Log.txt
-src/data/persistent-channels.json
+/data/

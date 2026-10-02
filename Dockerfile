@@ -12,5 +12,6 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --production
 COPY --from=builder /app/build ./build
+RUN mkdir -p /app/data && chown -R node:node /app/data
 USER node
 CMD ["node", "build/index.js"]
