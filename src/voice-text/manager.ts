@@ -1,16 +1,58 @@
 import { ChannelType, OverwriteType, PermissionFlagsBits } from "discord.js";
 import type { Collection, GuildBasedChannel, GuildMember, VoiceBasedChannel } from "discord.js";
+import { loadPersistentEntries, removePersistentEntry, savePersistentEntry } from "./persistent-store.js";
 
-// voice channel id -> companion text channel id
-// in-memory only: the ready handler rebuilds this state after every restart
-const textChannelByVoiceId = new Map<string, string>();
+interface CompanionEntry {
+  textChannelId: string;
+  // persistent companions are also mirrored to disk (persistent-store.ts) so they
+  // survive a restart; non-persistent ones live only in this map and get rebuilt
+  // by the ready handler after every restart
+  persistent: boolean;
+}
+
+// voice channel id -> companion text channel entry
+const companionByVoiceId = new Map<string, CompanionEntry>();
 
 export function getTextChannelId(voiceChannelId: string): string | undefined {
-  return textChannelByVoiceId.get(voiceChannelId);
+  return companionByVoiceId.get(voiceChannelId)?.textChannelId;
+}
+
+export function isPersistent(voiceChannelId: string): boolean {
+  return companionByVoiceId.get(voiceChannelId)?.persistent ?? false;
+}
+
+export function getVoiceChannelIdForText(textChannelId: string): string | undefined {
+  for (const [voiceChannelId, entry] of companionByVoiceId) {
+    if (entry.textChannelId === textChannelId) return voiceChannelId;
+  }
+  return undefined;
 }
 
 export function forgetVoiceChannel(voiceChannelId: string): void {
-  textChannelByVoiceId.delete(voiceChannelId);
+  companionByVoiceId.delete(voiceChannelId);
+  removePersistentEntry(voiceChannelId);
+}
+
+// re-registers a companion that was marked persistent before a restart, without
+// creating a new discord channel; used by the ready handler
+export function registerExistingCompanion(voiceChannelId: string, textChannelId: string): void {
+  companionByVoiceId.set(voiceChannelId, { textChannelId, persistent: true });
+}
+
+export function restorePersistentEntries(): Map<string, string> {
+  return loadPersistentEntries();
+}
+
+export function setPersistent(voiceChannelId: string, persistent: boolean): boolean {
+  const entry = companionByVoiceId.get(voiceChannelId);
+  if (entry === undefined) return false;
+  entry.persistent = persistent;
+  if (persistent) {
+    savePersistentEntry(voiceChannelId, entry.textChannelId);
+  } else {
+    removePersistentEntry(voiceChannelId);
+  }
+  return true;
 }
 
 export async function createCompanionTextChannel(
@@ -38,7 +80,7 @@ export async function createCompanionTextChannel(
       })),
     ],
   });
-  textChannelByVoiceId.set(voiceChannel.id, textChannel.id);
+  companionByVoiceId.set(voiceChannel.id, { textChannelId: textChannel.id, persistent: false });
 }
 
 export async function setMemberVisibility(

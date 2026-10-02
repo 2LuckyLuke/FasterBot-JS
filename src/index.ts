@@ -1,5 +1,6 @@
 import { Client, Events, GatewayIntentBits, Partials } from "discord.js";
 import { config } from "./config.js";
+import { onChannelDelete } from "./events/channel-delete.js";
 import { onInteractionCreate } from "./events/interaction-create.js";
 import { onMessageCreate } from "./events/message-create.js";
 import { onReady } from "./events/ready.js";
@@ -31,6 +32,9 @@ client.on(Events.VoiceStateUpdate, (oldState, newState) => {
   onVoiceStateUpdate(oldState, newState).catch((err: unknown) =>
     console.error("voiceStateUpdate failed:", err),
   );
+});
+client.on(Events.ChannelDelete, (channel) => {
+  onChannelDelete(channel).catch((err: unknown) => console.error("channelDelete failed:", err));
 });
 
 await client.login(config.token);

@@ -3,6 +3,7 @@ import {
   createCompanionTextChannel,
   forgetVoiceChannel,
   getTextChannelId,
+  isPersistent,
   setMemberVisibility,
 } from "./manager.js";
 
@@ -49,11 +50,11 @@ export async function onVoiceLeave(state: VoiceState): Promise<void> {
   const textChannel = await state.guild.channels.fetch(textChannelId);
   if (textChannel === null) return;
 
-  if (voiceChannel.members.size <= 0) {
-    // last member left: the companion text channel goes with them
+  await setMemberVisibility(textChannel, state.member.id, false);
+
+  if (voiceChannel.members.size <= 0 && !isPersistent(voiceChannel.id)) {
+    // last member left and the channel isn't marked persistent: it goes with them
     await textChannel.delete();
     forgetVoiceChannel(voiceChannel.id);
-  } else {
-    await setMemberVisibility(textChannel, state.member.id, false);
   }
 }
