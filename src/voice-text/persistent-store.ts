@@ -2,8 +2,10 @@ import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 // kept outside build/ (which is root-owned and gets wiped on every rebuild) in
-// its own writable directory, so it's a sensible place to mount a volume too;
-// override with DATA_DIR if the runtime needs it somewhere else
+// its own writable directory. In the container this must be a mounted volume
+// (faster_bot_data in pi-docker-setup's compose.yaml): every redeploy recreates
+// the container, and an empty store makes the ready handler delete the channels
+// it was protecting. Override with DATA_DIR if the runtime needs it somewhere else
 const dataDir = process.env.DATA_DIR ?? path.join(process.cwd(), "data");
 const storePath = path.join(dataDir, "persistent-channels.json");
 

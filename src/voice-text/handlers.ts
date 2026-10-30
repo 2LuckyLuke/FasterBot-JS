@@ -47,14 +47,17 @@ export async function onVoiceLeave(state: VoiceState): Promise<void> {
 
   const textChannelId = getTextChannelId(voiceChannel.id);
   if (textChannelId === undefined) return;
-  const textChannel = await state.guild.channels.fetch(textChannelId);
-  if (textChannel === null) return;
-
-  await setMemberVisibility(textChannel, state.member.id, false);
 
   if (voiceChannel.members.size <= 0 && !isPersistent(voiceChannel.id)) {
-    // last member left and the channel isn't marked persistent: it goes with them
-    await textChannel.delete();
+    // last member left and the channel isn't marked persistent: it goes with them.
+    // forget it before the first await, so a leave handled concurrently (two members
+    // dropping out at once) sees no companion instead of deleting it a second time
     forgetVoiceChannel(voiceChannel.id);
+    await state.guild.channels.delete(textChannelId);
+    return;
   }
+
+  const textChannel = await state.guild.channels.fetch(textChannelId);
+  if (textChannel === null) return;
+  await setMemberVisibility(textChannel, state.member.id, false);
 }

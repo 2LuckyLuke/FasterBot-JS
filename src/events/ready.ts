@@ -16,6 +16,7 @@ export async function onReady(client: Client<true>): Promise<void> {
   if (category === null || category.type !== ChannelType.GuildCategory) return;
 
   const persistentEntries = restorePersistentEntries(); // voice channel id -> text channel id
+  console.log(`Loaded ${persistentEntries.size} persistent companion channel(s) from disk`);
   const persistentTextChannelIds = new Set(persistentEntries.values());
   const children = [...category.children.cache.values()];
 
